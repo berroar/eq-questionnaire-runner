@@ -6,10 +6,10 @@ from .context import Context
 from .section_summary_context import SectionSummaryContext
 
 
-class QuestionnaireSummaryContext(Context):
-    def __call__(self, collapsible=True, answers_are_editable=True):
-        groups = list(self._build_all_groups())
-
+class LinearQuestionnaireFlowContext(Context):
+    def __call__(
+        self, include_summary: bool, collapsible=True, answers_are_editable=True
+    ):
         submission_schema = self._schema.get_submission()
 
         title = submission_schema.get("title") or lazy_gettext(
@@ -25,19 +25,26 @@ class QuestionnaireSummaryContext(Context):
         warning = submission_schema.get("warning") or None
 
         context = {
-            "summary": {
-                "groups": groups,
-                "answers_are_editable": answers_are_editable,
-                "collapsible": collapsible,
-                "summary_type": "Summary",
-            },
             "title": title,
             "guidance": guidance,
             "warning": warning,
             "submit_button": submit_button,
         }
+        if include_summary:
+            context.update(self._get_summary_context(collapsible, answers_are_editable))
 
         return context
+
+    def _get_summary_context(self, collapsible, answers_are_editable):
+        groups = list(self._build_all_groups())
+        return {
+            "summary": {
+                "groups": groups,
+                "answers_are_editable": answers_are_editable,
+                "collapsible": collapsible,
+                "summary_type": "Summary",
+            }
+        }
 
     def _build_all_groups(self):
         """ NB: Does not support repeating sections """

@@ -58,7 +58,7 @@ class Router:
         return False
 
     def can_access_hub(self):
-        return self._schema.is_hub_enabled() and all(
+        return self._schema.is_questionnaire_flow_hub and all(
             self._progress_store.is_section_complete(section_id)
             for section_id in self._schema.get_section_ids_required_for_hub()
             if section_id in self.enabled_section_ids
@@ -85,7 +85,7 @@ class Router:
                 return self._get_section_url(location)
 
             if return_to == "final-summary":
-                return self.get_last_location_in_survey().url()
+                return url_for("questionnaire.submit")
 
             if is_last_block_in_section:
                 return self._get_next_location_url_for_last_block_in_section(location)
@@ -100,8 +100,11 @@ class Router:
         if self._schema.show_summary_on_completion_for_section(location.section_id):
             return self._get_section_url(location)
 
-        if self._schema.is_hub_enabled():
+        if self._schema.is_questionnaire_flow_hub:
             return url_for("questionnaire.get_questionnaire")
+
+        if self._schema.is_questionnaire_flow_linear:
+            return url_for("questionnaire.submit")
 
         return self.get_first_incomplete_location_in_survey_url()
 
@@ -154,7 +157,7 @@ class Router:
 
         return self.get_first_location_in_section(routing_path).url()
 
-    def is_survey_complete(self):
+    def is_survey_complete(self) -> bool:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
         if first_incomplete_section_key:
             section_id = first_incomplete_section_key[0]

@@ -8,8 +8,7 @@ from app.data_models.progress_store import CompletionStatus
 from app.views.contexts import Context
 
 
-class HubContext(Context):
-
+class HubQuestionnaireFlowContext(Context):
     SECTION_CONTENT_STATES = {
         CompletionStatus.COMPLETED: {
             "text": lazy_gettext("Completed"),
@@ -41,7 +40,7 @@ class HubContext(Context):
         },
     }
 
-    def get_context(self, survey_complete, enabled_section_ids) -> Mapping:
+    def __call__(self, survey_complete, enabled_section_ids) -> Mapping:
         rows = self._get_rows(enabled_section_ids)
 
         if survey_complete:

@@ -4,7 +4,7 @@ import pytest
 from app.data_models.progress_store import CompletionStatus
 from app.questionnaire.router import Router
 from app.utilities.schema import load_schema_from_name
-from app.views.contexts import HubContext
+from app.views.contexts import HubQuestionnaireFlowContext
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_get_not_started_row_for_section(
         ]
     }
 
-    hub = HubContext(
+    hub = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,
@@ -76,7 +76,7 @@ def test_get_completed_row_for_section(
         ]
     }
 
-    hub = HubContext(
+    hub = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,
@@ -97,7 +97,7 @@ def test_get_completed_row_for_section(
 
 def test_get_context(progress_store, answer_store, list_store, router):
     schema = load_schema_from_name("test_hub_and_spoke")
-    hub = HubContext(
+    hub = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,
@@ -125,7 +125,7 @@ def test_get_context_custom_content_incomplete(
     progress_store, answer_store, list_store, router
 ):
     schema = load_schema_from_name("test_hub_and_spoke_custom_content")
-    hub_context = HubContext(
+    hub_context = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,
@@ -153,7 +153,7 @@ def test_get_context_custom_content_complete(
     progress_store, answer_store, list_store, router
 ):
     schema = load_schema_from_name("test_hub_and_spoke_custom_content")
-    hub_context = HubContext(
+    hub_context = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,
@@ -181,7 +181,7 @@ def test_get_context_no_list_items_survey_incomplete_individual_response_disable
     progress_store, answer_store, list_store, router
 ):
     schema = load_schema_from_name("test_individual_response")
-    hub_context = HubContext(
+    hub_context = HubQuestionnaireFlowContext(
         language=None,
         progress_store=progress_store,
         list_store=list_store,

@@ -156,14 +156,24 @@ class QuestionnaireSchema:  # pylint: disable=too-many-public-methods
 
         return answers_by_id
 
-    def get_hub(self):
-        return self.json.get("hub", {})
+    @cached_property
+    def _questionnaire_flow(self):
+        return self.json["questionnaire_flow"]
 
-    def is_hub_enabled(self):
-        return self.get_hub().get("enabled")
+    @cached_property
+    def questionnaire_flow_options(self):
+        return self._questionnaire_flow.get("options", {})
+
+    @property
+    def is_questionnaire_flow_hub(self):
+        return self._questionnaire_flow["type"] == "Hub"
+
+    @property
+    def is_questionnaire_flow_linear(self):
+        return self._questionnaire_flow["type"] == "Linear"
 
     def get_section_ids_required_for_hub(self):
-        return self.get_hub().get("required_completed_sections", [])
+        return self.questionnaire_flow_options.get("required_completed_sections", [])
 
     def get_sections(self):
         return self._sections_by_id.values()

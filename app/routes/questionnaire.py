@@ -8,16 +8,18 @@ from werkzeug.exceptions import BadRequest, NotFound
 from app.authentication.no_questionnaire_state_exception import (
     NoQuestionnaireStateException,
 )
+from app.data_models import QuestionnaireStore
 from app.globals import get_metadata, get_session_store, get_session_timeout_in_seconds
 from app.helpers import url_safe_serializer
 from app.helpers.language_helper import handle_language
 from app.helpers.schema_helpers import with_schema
 from app.helpers.session_helpers import with_questionnaire_store, with_session_store
 from app.helpers.template_helpers import render_template
+from app.questionnaire import QuestionnaireSchema
 from app.questionnaire.location import InvalidLocationException
 from app.questionnaire.router import Router
 from app.utilities.schema import load_schema_from_session_data
-from app.views.contexts.hub_context import HubContext
+from app.views.contexts.questionnaire_flow_context import QuestionnaireFlowContext
 from app.views.handlers.block_factory import get_block_handler
 from app.views.handlers.confirm_email import ConfirmEmail
 from app.views.handlers.confirmation_email import (
@@ -116,22 +118,19 @@ def get_questionnaire(schema, questionnaire_store):
             return redirect(url_for("post_submission.get_thank_you"))
         return redirect(router.get_first_incomplete_location_in_survey_url())
 
-    language_code = get_session_store().session_data.language_code
-
-    hub = HubContext(
-        language=language_code,
+    questionnaire_flow_context = QuestionnaireFlowContext(
         schema=schema,
-        answer_store=questionnaire_store.answer_store,
-        list_store=questionnaire_store.list_store,
-        progress_store=questionnaire_store.progress_store,
-        metadata=questionnaire_store.metadata,
+        questionnaire_store=questionnaire_store,
+        language=flask_babel.get_locale().language,
+        is_survey_complete=router.is_survey_complete(),
+        enabled_section_ids=router.enabled_section_ids,
     )
-
-    hub_context = hub.get_context(
-        router.is_survey_complete(), router.enabled_section_ids
+    context = questionnaire_flow_context()
+    return render_template(
+        questionnaire_flow_context.template,
+        content=context,
+        page_title=context["title"],
     )
-
-    return render_template("hub", content=hub_context, page_title=hub_context["title"])
 
 
 @questionnaire_blueprint.route("sections/<section_id>/", methods=["GET", "POST"])
@@ -206,17 +205,52 @@ def block(schema, questionnaire_store, block_id, list_name=None, list_item_id=No
             page_title=block_handler.page_title,
         )
 
-    if block_handler.block["type"] in END_BLOCKS:
-        submission_handler = SubmissionHandler(
-            schema, questionnaire_store, block_handler.router.full_routing_path()
-        )
-        submission_handler.submit_questionnaire()
-        return redirect(url_for("post_submission.get_thank_you"))
-
     block_handler.handle_post()
 
     next_location_url = block_handler.get_next_location_url()
     return redirect(next_location_url)
+
+
+@questionnaire_blueprint.route("submit/", methods=["GET", "POST"])
+@with_questionnaire_store
+@with_schema
+def submit(schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore):
+    if (
+        not schema.is_questionnaire_flow_linear
+    ):  # Can be removed when hub is submitted to this endpoint
+        raise NotFound
+
+    router = Router(
+        schema,
+        questionnaire_store.answer_store,
+        questionnaire_store.list_store,
+        questionnaire_store.progress_store,
+        questionnaire_store.metadata,
+    )
+
+    if not (survey_complete := router.is_survey_complete()):
+        raise NotFound
+
+    if request.method == "POST":
+        submission_handler = SubmissionHandler(
+            schema, questionnaire_store, router.full_routing_path()
+        )
+        submission_handler.submit_questionnaire()
+        return redirect(url_for("post_submission.get_thank_you"))
+
+    questionnaire_flow_context = QuestionnaireFlowContext(
+        schema=schema,
+        questionnaire_store=questionnaire_store,
+        language=flask_babel.get_locale().language,
+        is_survey_complete=survey_complete,
+        enabled_section_ids=router.enabled_section_ids,
+    )
+    context = questionnaire_flow_context()
+    return render_template(
+        questionnaire_flow_context.template,
+        content=context,
+        page_title=context["title"],
+    )
 
 
 @questionnaire_blueprint.route(

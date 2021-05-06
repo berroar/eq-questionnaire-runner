@@ -100,13 +100,7 @@ class Router:
         if self._schema.show_summary_on_completion_for_section(location.section_id):
             return self._get_section_url(location)
 
-        if self._schema.is_questionnaire_flow_hub:
-            return url_for("questionnaire.get_questionnaire")
-
-        if self._schema.is_questionnaire_flow_linear:
-            return url_for("questionnaire.submit")
-
-        return self.get_first_incomplete_location_in_survey_url()
+        return self.get_next_location_for_questionnaire_flow()
 
     def get_previous_location_url(self, location, routing_path):
         """
@@ -146,6 +140,15 @@ class Router:
             return self.get_section_resume_url(section_routing_path)
 
         return self.get_last_location_in_survey().url()
+
+    def get_next_location_for_questionnaire_flow(self):
+        if self._schema.is_questionnaire_flow_hub:
+            return url_for("questionnaire.get_questionnaire")
+
+        if self._schema.is_questionnaire_flow_linear and self.is_survey_complete():
+            return url_for("questionnaire.submit")
+
+        return self.get_first_incomplete_location_in_survey_url()
 
     def get_section_resume_url(self, routing_path):
         section_key = (routing_path.section_id, routing_path.list_item_id)

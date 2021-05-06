@@ -129,6 +129,7 @@ def get_questionnaire(schema, questionnaire_store):
         questionnaire_flow_context.template,
         content=context,
         page_title=context["title"],
+        previous_location_url=router.get_previous_location_url()
     )
 
 

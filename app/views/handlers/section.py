@@ -46,9 +46,7 @@ class SectionHandler:
         return section_summary_context()
 
     def get_next_location_url(self):
-        if self._schema.is_questionnaire_flow_hub:
-            return url_for(".get_questionnaire")
-        return self._router.get_first_incomplete_location_in_survey_url()
+        return self._router.get_next_location_for_questionnaire_flow()
 
     def get_previous_location_url(self):
         return self._router.get_last_location_in_section(self._routing_path).url()

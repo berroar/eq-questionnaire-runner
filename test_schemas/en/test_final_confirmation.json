@@ -10,10 +10,6 @@
     "navigation": {
         "visible": true
     },
-    "questionnaire_flow": {
-        "type": "Linear",
-        "options": { "include_summary": false }
-    },
     "metadata": [
         {
             "name": "user_id",
@@ -28,6 +24,10 @@
             "type": "string"
         }
     ],
+    "questionnaire_flow": {
+        "type": "Linear",
+        "options": { "include_summary": false }
+    },
     "submission": {
         "button": "Submit answers",
         "guidance": "Thank you for your answers, do you wish to submit",

@@ -21,10 +21,7 @@
             "type": "string"
         }
     ],
-    "hub": {
-        "enabled": true,
-        "required_completed_sections": ["work-section"]
-    },
+
     "sections": [
         {
             "id": "work-section",

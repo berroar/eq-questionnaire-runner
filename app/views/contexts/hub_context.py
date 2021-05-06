@@ -8,7 +8,7 @@ from app.data_models.progress_store import CompletionStatus
 from app.views.contexts import Context
 
 
-class HubQuestionnaireFlowContext(Context):
+class HubContext(Context):
     SECTION_CONTENT_STATES = {
         CompletionStatus.COMPLETED: {
             "text": lazy_gettext("Completed"),

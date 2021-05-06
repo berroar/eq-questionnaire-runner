@@ -9,7 +9,7 @@ from app.questionnaire.location import Location
 from app.questionnaire.questionnaire_schema import DEFAULT_LANGUAGE_CODE
 from app.questionnaire.routing_path import RoutingPath
 from app.utilities.schema import load_schema_from_name
-from app.views.contexts import LinearQuestionnaireFlowContext, SectionSummaryContext
+from app.views.contexts import SectionSummaryContext, SubmitContext
 from app.views.contexts.calculated_summary_context import CalculatedSummaryContext
 from tests.app.app_context_test_case import AppContextTestCase
 
@@ -79,7 +79,7 @@ class TestSummaryContext(TestStandardSummaryContext):
         )
 
     def test_build_summary_rendering_context(self):
-        questionnaire_summary_context = LinearQuestionnaireFlowContext(
+        questionnaire_summary_context = SubmitContext(
             self.language,
             self.schema,
             self.answer_store,
@@ -94,7 +94,7 @@ class TestSummaryContext(TestStandardSummaryContext):
     def test_summary_context_with_custom_submission_content(self):
         self.schema = load_schema_from_name("test_summary_with_submission_text")
 
-        questionnaire_summary_context = LinearQuestionnaireFlowContext(
+        questionnaire_summary_context = SubmitContext(
             self.language,
             self.schema,
             self.answer_store,

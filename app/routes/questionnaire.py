@@ -19,7 +19,7 @@ from app.questionnaire import QuestionnaireSchema
 from app.questionnaire.location import InvalidLocationException
 from app.questionnaire.router import Router
 from app.utilities.schema import load_schema_from_session_data
-from app.views.contexts.questionnaire_flow_context import QuestionnaireFlowContext
+from app.views.contexts import HubContext
 from app.views.handlers.block_factory import get_block_handler
 from app.views.handlers.confirm_email import ConfirmEmail
 from app.views.handlers.confirmation_email import (
@@ -30,6 +30,7 @@ from app.views.handlers.confirmation_email import (
 from app.views.handlers.feedback import Feedback, FeedbackNotEnabled
 from app.views.handlers.section import SectionHandler
 from app.views.handlers.submission import SubmissionHandler
+from app.views.handlers.submit import SubmitHandler
 from app.views.handlers.thank_you import ThankYou
 
 logger = get_logger()
@@ -117,19 +118,22 @@ def get_questionnaire(schema, questionnaire_store):
             return redirect(url_for("post_submission.get_thank_you"))
         return redirect(router.get_first_incomplete_location_in_survey_url())
 
-    questionnaire_flow_context = QuestionnaireFlowContext(
-        schema=schema,
-        questionnaire_store=questionnaire_store,
+    hub_context = HubContext(
         language=flask_babel.get_locale().language,
-        is_survey_complete=router.is_survey_complete(),
+        schema=schema,
+        answer_store=questionnaire_store.answer_store,
+        list_store=questionnaire_store.list_store,
+        progress_store=questionnaire_store.progress_store,
+        metadata=questionnaire_store.metadata,
+    )
+    context = hub_context(
+        survey_complete=router.is_survey_complete(),
         enabled_section_ids=router.enabled_section_ids,
     )
-    context = questionnaire_flow_context()
     return render_template(
-        questionnaire_flow_context.template,
+        "hub",
         content=context,
         page_title=context["title"],
-        previous_location_url=router.get_previous_location_url()
     )
 
 
@@ -153,7 +157,7 @@ def get_section(schema, questionnaire_store, section_id, list_item_id=None):
 
     if request.method != "POST":
         if section_handler.can_display_summary():
-            section_context = section_handler.context()
+            section_context = section_handler.get_context()
             return _render_page(
                 template="SectionSummary",
                 context=section_context,
@@ -206,7 +210,6 @@ def block(schema, questionnaire_store, block_id, list_name=None, list_item_id=No
         )
 
     block_handler.handle_post()
-
     next_location_url = block_handler.get_next_location_url()
     return redirect(next_location_url)
 
@@ -215,41 +218,22 @@ def block(schema, questionnaire_store, block_id, list_name=None, list_item_id=No
 @with_questionnaire_store
 @with_schema
 def submit(schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore):
-    if (
-        not schema.is_questionnaire_flow_linear
-    ):  # Can be removed when hub is submitted to this endpoint
-        raise NotFound
-
-    router = Router(
-        schema,
-        questionnaire_store.answer_store,
-        questionnaire_store.list_store,
-        questionnaire_store.progress_store,
-        questionnaire_store.metadata,
-    )
-
-    if not (survey_complete := router.is_survey_complete()):
+    try:
+        submit_handler = SubmitHandler(
+            schema, questionnaire_store, flask_babel.get_locale().language
+        )
+    except InvalidLocationException:
         raise NotFound
 
     if request.method == "POST":
-        submission_handler = SubmissionHandler(
-            schema, questionnaire_store, router.full_routing_path()
-        )
-        submission_handler.submit_questionnaire()
-        return redirect(url_for("post_submission.get_thank_you"))
+        return submit_handler.handle_post()
 
-    questionnaire_flow_context = QuestionnaireFlowContext(
-        schema=schema,
-        questionnaire_store=questionnaire_store,
-        language=flask_babel.get_locale().language,
-        is_survey_complete=survey_complete,
-        enabled_section_ids=router.enabled_section_ids,
-    )
-    context = questionnaire_flow_context()
+    context = submit_handler.get_context()
     return render_template(
-        questionnaire_flow_context.template,
+        submit_handler.template,
         content=context,
         page_title=context["title"],
+        previous_location_url="google.com",
     )
 
 

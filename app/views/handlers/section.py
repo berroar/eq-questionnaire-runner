@@ -1,5 +1,3 @@
-from flask import url_for
-
 from app.questionnaire.location import InvalidLocationException, Location
 from app.questionnaire.router import Router
 from app.views.contexts import SectionSummaryContext
@@ -32,7 +30,7 @@ class SectionHandler:
             section_id=self._section_id, list_item_id=self._list_item_id
         )
 
-    def context(self):
+    def get_context(self):
         section_summary_context = SectionSummaryContext(
             self._language,
             self._schema,

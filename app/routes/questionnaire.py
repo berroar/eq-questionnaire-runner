@@ -230,10 +230,7 @@ def submit(schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore)
 
     context = submit_handler.get_context()
     return render_template(
-        submit_handler.template,
-        content=context,
-        page_title=context["title"],
-        previous_location_url="google.com",
+        submit_handler.template, content=context, page_title=context["title"]
     )
 
 

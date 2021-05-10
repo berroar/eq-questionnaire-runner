@@ -75,7 +75,7 @@
                                 },
                                 {
                                     "goto": {
-                                        "section": "End"
+                                        "group": "summary-group"
                                     }
                                 }
                             ]

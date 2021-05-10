@@ -50,7 +50,7 @@ class SubmitHandler:
     def _is_valid_location(self):
         return (
             self._schema.is_questionnaire_flow_linear
-            and self.router.is_survey_complete()
+            and self.router.is_questionnaire_complete
         )
 
     def get_previous_location_url(self):

@@ -83,7 +83,7 @@
                             "routing_rules": [
                                 {
                                     "goto": {
-                                        "block": "summary"
+                                        "section": "End"
                                     }
                                 }
                             ]

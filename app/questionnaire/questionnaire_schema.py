@@ -170,11 +170,11 @@ class QuestionnaireSchema:  # pylint: disable=too-many-public-methods
     def questionnaire_flow_options(self) -> ImmutableDict[str, Any]:
         return self._questionnaire_flow["options"]
 
-    @property
+    @cached_property
     def is_questionnaire_flow_hub(self) -> bool:
         return bool(self._questionnaire_flow["type"] == "Hub")
 
-    @property
+    @cached_property
     def is_questionnaire_flow_linear(self) -> bool:
         return bool(self._questionnaire_flow["type"] == "Linear")
 

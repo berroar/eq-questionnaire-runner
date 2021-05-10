@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from flask import url_for
 
 from app.questionnaire.location import Location
@@ -50,7 +52,7 @@ class Router:
             block = self._schema.get_block(location.block_id)
             if (
                 block["type"] in ["Confirmation", "Summary"]
-                and not self.is_survey_complete()
+                and not self.is_questionnaire_complete
             ):
                 return False
 
@@ -84,7 +86,7 @@ class Router:
             if return_to == "section-summary":
                 return self._get_section_url(location)
 
-            if return_to == "final-summary":
+            if return_to == "final-summary" and self.is_questionnaire_complete:
                 return url_for("questionnaire.submit")
 
             if is_last_block_in_section:
@@ -142,10 +144,10 @@ class Router:
         return self.get_last_location_in_survey().url()
 
     def get_next_location_for_questionnaire_flow(self):
-        if self._schema.is_questionnaire_flow_hub:
+        if self._schema.is_questionnaire_flow_hub and self.can_access_hub():
             return url_for("questionnaire.get_questionnaire")
 
-        if self._schema.is_questionnaire_flow_linear and self.is_survey_complete():
+        if self._schema.is_questionnaire_flow_linear and self.is_questionnaire_complete:
             return url_for("questionnaire.submit")
 
         return self.get_first_incomplete_location_in_survey_url()
@@ -160,7 +162,9 @@ class Router:
 
         return self.get_first_location_in_section(routing_path).url()
 
-    def is_survey_complete(self) -> bool:
+    # look at caching
+    @cached_property
+    def is_questionnaire_complete(self) -> bool:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
         if first_incomplete_section_key:
             section_id = first_incomplete_section_key[0]

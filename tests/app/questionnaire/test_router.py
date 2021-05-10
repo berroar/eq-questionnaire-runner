@@ -436,7 +436,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             schema, self.answer_store, self.list_store, progress_store, self.metadata
         )
 
-        is_survey_complete = router.is_survey_complete()
+        is_survey_complete = router.is_questionnaire_complete
 
         self.assertTrue(is_survey_complete)
 
@@ -451,7 +451,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             self.metadata,
         )
 
-        is_survey_complete = router.is_survey_complete()
+        is_survey_complete = router.is_questionnaire_complete
 
         self.assertFalse(is_survey_complete)
 
@@ -482,7 +482,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             schema, self.answer_store, list_store, progress_store, self.metadata
         )
 
-        is_survey_complete = router.is_survey_complete()
+        is_survey_complete = router.is_questionnaire_complete
 
         self.assertFalse(is_survey_complete)
 
@@ -518,7 +518,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             schema, self.answer_store, list_store, progress_store, self.metadata
         )
 
-        is_survey_complete = router.is_survey_complete()
+        is_survey_complete = router.is_questionnaire_complete
 
         self.assertTrue(is_survey_complete)
 
@@ -558,7 +558,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             schema, self.answer_store, self.list_store, progress_store, self.metadata
         )
 
-        is_survey_complete = router.is_survey_complete()
+        is_survey_complete = router.is_questionnaire_complete
 
         self.assertTrue(is_survey_complete)
 

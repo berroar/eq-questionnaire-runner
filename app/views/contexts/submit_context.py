@@ -10,7 +10,7 @@ class SubmitContext(Context):
     def __call__(self, answers_are_editable=True):
         include_summary = self._schema.questionnaire_flow_options["include_summary"]
         collapsible = self._schema.questionnaire_flow_options.get("collapsible", False)
-        submission_schema = self._schema.get_submission()
+        submission_schema: Mapping = self._schema.get_submission() or {}
 
         title = submission_schema.get("title") or lazy_gettext(
             "Check your answers and submit"

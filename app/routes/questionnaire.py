@@ -110,7 +110,7 @@ def get_questionnaire(schema, questionnaire_store):
         return redirect(redirect_location_url)
 
     if request.method == "POST":
-        if router.is_survey_complete():
+        if router.is_questionnaire_complete:
             submission_handler = SubmissionHandler(
                 schema, questionnaire_store, router.full_routing_path()
             )
@@ -127,7 +127,7 @@ def get_questionnaire(schema, questionnaire_store):
         metadata=questionnaire_store.metadata,
     )
     context = hub_context(
-        survey_complete=router.is_survey_complete(),
+        survey_complete=router.is_questionnaire_complete,
         enabled_section_ids=router.enabled_section_ids,
     )
     return render_template(

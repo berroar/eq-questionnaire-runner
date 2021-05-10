@@ -106,7 +106,9 @@ def get_questionnaire(schema, questionnaire_store):
     )
 
     if not router.can_access_hub():
-        redirect_location_url = router.get_first_incomplete_location_in_survey_url()
+        redirect_location_url = (
+            router.get_first_incomplete_location_in_questionnaire_url()
+        )
         return redirect(redirect_location_url)
 
     if request.method == "POST":
@@ -116,7 +118,7 @@ def get_questionnaire(schema, questionnaire_store):
             )
             submission_handler.submit_questionnaire()
             return redirect(url_for("post_submission.get_thank_you"))
-        return redirect(router.get_first_incomplete_location_in_survey_url())
+        return redirect(router.get_first_incomplete_location_in_questionnaire_url())
 
     hub_context = HubContext(
         language=flask_babel.get_locale().language,
@@ -230,7 +232,10 @@ def submit(schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore)
 
     context = submit_handler.get_context()
     return render_template(
-        submit_handler.template, content=context, page_title=context["title"]
+        submit_handler.template,
+        content=context,
+        page_title=context["title"],
+        previous_location_url=submit_handler.get_previous_location_url(),
     )
 
 

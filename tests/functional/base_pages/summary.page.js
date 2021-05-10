@@ -2,7 +2,7 @@ import QuestionPage from "./question.page";
 
 class SummmaryPage extends QuestionPage {
   constructor() {
-    super("summary");
+    super("submit");
   }
 
   summary() {

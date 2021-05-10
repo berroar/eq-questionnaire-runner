@@ -25,11 +25,11 @@ class Router:
 
     @property
     def enabled_section_ids(self):
-        return [
+        return (
             section["id"]
             for section in self._schema.get_sections()
             if self._is_section_enabled(section=section)
-        ]
+        )
 
     def is_list_item_in_list_store(self, list_item_id, list_name):
         return list_item_id in self._list_store[list_name]
@@ -130,7 +130,7 @@ class Router:
 
         return None
 
-    def get_first_incomplete_location_in_survey_url(self):
+    def get_first_incomplete_location_in_questionnaire_url(self):
         first_incomplete_section_key = self._get_first_incomplete_section_key()
 
         if first_incomplete_section_key:
@@ -141,7 +141,7 @@ class Router:
             )
             return self.get_section_resume_url(section_routing_path)
 
-        return self.get_last_location_in_survey().url()
+        return self.get_last_location_in_questionnaire().url()
 
     def get_next_location_for_questionnaire_flow(self):
         if self._schema.is_questionnaire_flow_hub and self.can_access_hub():
@@ -150,7 +150,7 @@ class Router:
         if self._schema.is_questionnaire_flow_linear and self.is_questionnaire_complete:
             return url_for("questionnaire.submit")
 
-        return self.get_first_incomplete_location_in_survey_url()
+        return self.get_first_incomplete_location_in_questionnaire_url()
 
     def get_section_resume_url(self, routing_path):
         section_key = (routing_path.section_id, routing_path.list_item_id)
@@ -166,10 +166,7 @@ class Router:
     @cached_property
     def is_questionnaire_complete(self) -> bool:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
-        if first_incomplete_section_key:
-            return False
-
-        return True
+        return not first_incomplete_section_key
 
     def is_path_complete(self, routing_path):
         return not bool(self._get_first_incomplete_location_in_section(routing_path))
@@ -250,26 +247,25 @@ class Router:
         return allowable_path
 
     def get_enabled_section_keys(self):
-        enabled_section_keys = []
-
         for section_id in self.enabled_section_ids:
             repeating_list = self._schema.get_repeating_list_for_section(section_id)
 
             if repeating_list:
                 for list_item_id in self._list_store[repeating_list]:
                     section_key = (section_id, list_item_id)
-                    enabled_section_keys.append(section_key)
+                    yield section_key
             else:
                 section_key = (section_id, None)
-                enabled_section_keys.append(section_key)
-
-        return enabled_section_keys
+                yield section_key
 
     def _get_first_incomplete_section_key(self):
-        enabled_section_keys = self.get_enabled_section_keys()
-
-        for section_id, list_item_id in enabled_section_keys:
+        for section_id, list_item_id in self.get_enabled_section_keys():
             if not self._progress_store.is_section_complete(section_id, list_item_id):
+                return section_id, list_item_id
+
+    def _get_last_complete_section_key(self):
+        for section_id, list_item_id in list(self.get_enabled_section_keys())[::-1]:
+            if self._progress_store.is_section_complete(section_id, list_item_id):
                 return section_id, list_item_id
 
     def _is_section_enabled(self, section):
@@ -297,10 +293,16 @@ class Router:
             list_item_id=routing_path.list_item_id,
         )
 
-    def get_last_location_in_survey(self):
-        last_section_id = self._schema.get_section_ids()[-1]
-        last_block_id = self._schema.get_last_block_id_for_section(last_section_id)
-        return Location(section_id=last_section_id, block_id=last_block_id)
+    def get_last_location_in_questionnaire(self):
+        section_id, list_item_id = self._get_last_complete_section_key()
+        last_complete_block = self._progress_store.get_completed_block_ids(
+            section_id=section_id, list_item_id=list_item_id
+        )[-1]
+        return Location(
+            section_id=section_id,
+            block_id=last_complete_block,
+            list_item_id=list_item_id,
+        )
 
     @staticmethod
     def _get_section_url(location):

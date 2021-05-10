@@ -1,5 +1,5 @@
 import DessertPage from "../../../generated_pages/summary/dessert.page.js";
-import DessertConfirmationPage from "../../../generated_pages/summary/dessert-confirmation.page.js";
+import DessertConfirmationPage from "../../../base_pages/confirmation.page.js";
 import NumbersPage from "../../../generated_pages/summary/numbers.page.js";
 import RadioPage from "../../../generated_pages/summary/radio.page.js";
 import SummaryPage from "../../../generated_pages/summary/summary.page.js";

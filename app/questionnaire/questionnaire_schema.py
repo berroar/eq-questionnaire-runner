@@ -168,7 +168,8 @@ class QuestionnaireSchema:  # pylint: disable=too-many-public-methods
 
     @cached_property
     def questionnaire_flow_options(self) -> ImmutableDict[str, Any]:
-        return self._questionnaire_flow["options"]
+        options: ImmutableDict[str, Any] = self._questionnaire_flow["options"]
+        return options
 
     @cached_property
     def is_questionnaire_flow_hub(self) -> bool:

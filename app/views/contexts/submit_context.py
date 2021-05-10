@@ -1,3 +1,5 @@
+from typing import Mapping
+
 from flask_babel import lazy_gettext
 
 from app.questionnaire.location import Location

@@ -149,7 +149,7 @@
                                 },
                                 {
                                     "goto": {
-                                        "group": "summary-group"
+                                        "section": "End"
                                     }
                                 }
                             ]

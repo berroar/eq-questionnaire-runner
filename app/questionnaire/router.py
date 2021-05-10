@@ -167,9 +167,6 @@ class Router:
     def is_questionnaire_complete(self) -> bool:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
         if first_incomplete_section_key:
-            section_id = first_incomplete_section_key[0]
-            if self._does_section_only_contain_summary(section_id):
-                return True
             return False
 
         return True
@@ -274,21 +271,6 @@ class Router:
         for section_id, list_item_id in enabled_section_keys:
             if not self._progress_store.is_section_complete(section_id, list_item_id):
                 return section_id, list_item_id
-
-    # This is horrible and only necessary as currently a section can be defined that only
-    # contains a Summary or Confirmation. The ideal solution is to move Summary/Confirmation
-    # blocks from sections and into the top level of the schema. Once that's done this can be
-    # removed.
-    def _does_section_only_contain_summary(self, section_id):
-        section = self._schema.get_section(section_id)
-        groups = section.get("groups")
-        if len(groups) == 1:
-            blocks = groups[0].get("blocks")
-            if len(blocks) == 1:
-                block_type = blocks[0].get("type")
-                if block_type in {"Summary", "Confirmation"}:
-                    return True
-        return False
 
     def _is_section_enabled(self, section):
         if "enabled" not in section:

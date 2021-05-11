@@ -34,4 +34,4 @@ class ConfirmationPage extends BasePage {
   }
 }
 
-export default new ConfirmationPage();
+export default new ConfirmationPage("confirmation");

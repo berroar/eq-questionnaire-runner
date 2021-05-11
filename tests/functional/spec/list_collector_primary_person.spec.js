@@ -90,7 +90,7 @@ describe("Primary Person List Collector Survey", () => {
 
     it("When the user attempts to submit, then they are shown the confirmation page", () => {
       $(SectionSummaryPage.submit()).click();
-      expect($("body").getText()).to.contain("Thank you for your answers, do you wish to submit");
+      expect($(ConfirmationPage.guidance()).getText()).to.contain("Thank you for your answers, do you wish to submit");
     });
 
     it("When the user submits, then they are allowed to submit the survey", () => {

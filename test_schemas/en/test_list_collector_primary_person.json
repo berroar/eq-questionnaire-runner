@@ -25,6 +25,12 @@
         "type": "Linear",
         "options": { "include_summary": false }
     },
+    "submission": {
+        "button": "Submit answers",
+        "guidance": "Thank you for your answers, do you wish to submit",
+        "title": "Submit answers",
+        "warning": "You cannot view your answers after submission"
+    },
     "sections": [
         {
             "id": "section",

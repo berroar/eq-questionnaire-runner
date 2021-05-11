@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import Optional, Tuple
 
 from flask import url_for
 
@@ -92,7 +93,7 @@ class Router:
         if self._schema.show_summary_on_completion_for_section(location.section_id):
             return self._get_section_url(location)
 
-        return self.get_next_location_for_questionnaire_flow()
+        return self.get_next_location_url_for_questionnaire_flow()
 
     def get_previous_location_url(self, location, routing_path):
         """
@@ -120,7 +121,7 @@ class Router:
 
         return None
 
-    def get_first_incomplete_location_in_questionnaire_url(self):
+    def get_first_incomplete_location_in_questionnaire_url(self) -> str:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
 
         if first_incomplete_section_key:
@@ -131,9 +132,9 @@ class Router:
             )
             return self.get_section_resume_url(section_routing_path)
 
-        return self.get_next_location_for_questionnaire_flow()
+        return self.get_next_location_url_for_questionnaire_flow()
 
-    def get_next_location_for_questionnaire_flow(self):
+    def get_next_location_url_for_questionnaire_flow(self) -> str:
         if self._schema.is_questionnaire_flow_hub and self.can_access_hub():
             return url_for("questionnaire.get_questionnaire")
 
@@ -152,7 +153,6 @@ class Router:
 
         return self.get_first_location_in_section(routing_path).url()
 
-    # look at caching
     @cached_property
     def is_questionnaire_complete(self) -> bool:
         first_incomplete_section_key = self._get_first_incomplete_section_key()
@@ -198,11 +198,9 @@ class Router:
         return full_routing_path
 
     def _is_block_complete(self, block_id, section_id, list_item_id):
-        completed_block_ids = self._progress_store.get_completed_block_ids(
+        return block_id in self._progress_store.get_completed_block_ids(
             section_id, list_item_id
         )
-
-        return block_id in completed_block_ids
 
     def _get_first_incomplete_location_in_section(self, routing_path):
         for block_id in routing_path:
@@ -250,7 +248,7 @@ class Router:
             if not self._progress_store.is_section_complete(section_id, list_item_id):
                 return section_id, list_item_id
 
-    def _get_last_complete_section_key(self):
+    def _get_last_complete_section_key(self) -> Tuple[str, Optional[str]]:
         for section_id, list_item_id in list(self.get_enabled_section_keys())[::-1]:
             if self._progress_store.is_section_complete(section_id, list_item_id):
                 return section_id, list_item_id
@@ -280,7 +278,7 @@ class Router:
             list_item_id=routing_path.list_item_id,
         )
 
-    def get_last_location_in_questionnaire(self):
+    def get_last_location_in_questionnaire(self) -> Location:
         section_id, list_item_id = self._get_last_complete_section_key()
         last_complete_block = self._progress_store.get_completed_block_ids(
             section_id=section_id, list_item_id=list_item_id

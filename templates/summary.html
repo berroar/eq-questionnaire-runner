@@ -10,15 +10,15 @@
 {% block submit_button %}
   {% if content.summary and content.summary.summary_type == 'CalculatedSummary' %}
     {{
-            onsButton({
-              "text": _("Yes, I confirm these are correct"),
-              "submitType": 'timer',
-              "classes": "btn--loader js-btn-submit",
-              "attributes": {
-                "data-qa": "btn-submit"
-              }
-            })
-            }}
+      onsButton({
+        "text": _("Yes, I confirm these are correct"),
+        "submitType": 'timer',
+        "classes": "btn--loader js-btn-submit",
+        "attributes": {
+          "data-qa": "btn-submit"
+        }
+      })
+    }}
   {% else %}
     {% if block and block.content %}
       {% set content_block = block.content %}
@@ -26,16 +26,16 @@
     {% endif %}
     <p class="u-mt-m">
       {{
-              onsButton({
-                "text": content.submit_button if content.submit_button else _("Submit answers"),
-                "submitType": 'timer',
-                "classes": "btn--loader js-btn-submit",
-                "attributes": {
-                  "data-qa": "btn-submit",
-                  "data-loading-msg": _("Submitting") + "&hellip;"
-                }
-              })
-              }}
+        onsButton({
+          "text": content.submit_button if content.submit_button else _("Submit answers"),
+          "submitType": 'timer',
+          "classes": "btn--loader js-btn-submit",
+          "attributes": {
+            "data-qa": "btn-submit",
+            "data-loading-msg": _("Submitting") + "&hellip;"
+          }
+        })
+      }}
     </p>
   {% endif %}
 {% endblock %}

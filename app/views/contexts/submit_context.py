@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Generator, Mapping, Union
 
 from flask_babel import lazy_gettext
 
@@ -9,7 +9,9 @@ from .section_summary_context import SectionSummaryContext
 
 
 class SubmitContext(Context):
-    def __call__(self, answers_are_editable=True):
+    def __call__(
+        self, answers_are_editable: bool = True
+    ) -> dict[str, Union[str, dict]]:
         include_summary = self._schema.questionnaire_flow_options["include_summary"]
         collapsible = self._schema.questionnaire_flow_options.get("collapsible", False)
         submission_schema: Mapping = self._schema.get_submission() or {}
@@ -37,7 +39,9 @@ class SubmitContext(Context):
 
         return context
 
-    def _get_summary_context(self, collapsible, answers_are_editable):
+    def _get_summary_context(
+        self, collapsible: bool, answers_are_editable: bool
+    ) -> dict[str, dict]:
         groups = list(self._build_all_groups())
         return {
             "summary": {
@@ -48,7 +52,7 @@ class SubmitContext(Context):
             }
         }
 
-    def _build_all_groups(self):
+    def _build_all_groups(self) -> Generator[dict, None, None]:
         """ NB: Does not support repeating sections """
 
         for section_id in self._router.enabled_section_ids:
@@ -64,7 +68,7 @@ class SubmitContext(Context):
                 return_to="final-summary",
                 routing_path=self._router.routing_path(section_id),
             )
-            section = self._schema.get_section(section_id)
+            section: Mapping = self._schema.get_section(section_id) or {}
             if section.get("summary", {}).get("items"):
                 break
 

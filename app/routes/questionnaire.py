@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Union
+
 import flask_babel
 from flask import Blueprint, g, redirect, request, url_for
 from flask_login import current_user, login_required
@@ -32,6 +36,9 @@ from app.views.handlers.section import SectionHandler
 from app.views.handlers.submission import SubmissionHandler
 from app.views.handlers.submit import SubmitHandler
 from app.views.handlers.thank_you import ThankYou
+
+if TYPE_CHECKING:
+    from werkzeug import Response
 
 logger = get_logger()
 
@@ -219,7 +226,9 @@ def block(schema, questionnaire_store, block_id, list_name=None, list_item_id=No
 @questionnaire_blueprint.route("submit/", methods=["GET", "POST"])
 @with_questionnaire_store
 @with_schema
-def submit(schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore):
+def submit(
+    schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore
+) -> Union[Response, str]:
     try:
         submit_handler = SubmitHandler(
             schema, questionnaire_store, flask_babel.get_locale().language

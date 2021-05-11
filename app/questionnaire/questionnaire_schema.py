@@ -185,9 +185,6 @@ class QuestionnaireSchema:  # pylint: disable=too-many-public-methods
     def get_sections(self) -> Iterable[ImmutableDict]:
         return self._sections_by_id.values()
 
-    def get_section_ids(self) -> list[str]:
-        return list(self._sections_by_id.keys())
-
     def get_section(self, section_id: str) -> Optional[ImmutableDict]:
         return self._sections_by_id.get(section_id)
 
@@ -329,12 +326,6 @@ class QuestionnaireSchema:  # pylint: disable=too-many-public-methods
 
     def get_group_for_block_id(self, block_id: str) -> Optional[ImmutableDict]:
         return self._group_for_block(block_id)
-
-    def get_last_block_id_for_section(self, section_id: str) -> Optional[str]:
-        section = self.get_section(section_id)
-        if section:
-            block_id: str = section["groups"][-1]["blocks"][-1]["id"]
-            return block_id
 
     def get_first_block_id_for_group(self, group_id: str) -> Optional[str]:
         group = self.get_group(group_id)

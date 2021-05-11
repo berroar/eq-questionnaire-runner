@@ -25,11 +25,11 @@ class Router:
 
     @property
     def enabled_section_ids(self):
-        return (
+        return [
             section["id"]
             for section in self._schema.get_sections()
             if self._is_section_enabled(section=section)
-        )
+        ]
 
     def is_list_item_in_list_store(self, list_item_id, list_name):
         return list_item_id in self._list_store[list_name]
@@ -47,17 +47,7 @@ class Router:
         ):
             return False
 
-        allowable_path = self._get_allowable_path(routing_path)
-        if location.block_id in allowable_path:
-            block = self._schema.get_block(location.block_id)
-            if (
-                block["type"] in ["Confirmation", "Summary"]
-                and not self.is_questionnaire_complete
-            ):
-                return False
-
-            return True
-        return False
+        return location.block_id in self._get_allowable_path(routing_path)
 
     def can_access_hub(self):
         return self._schema.is_questionnaire_flow_hub and all(
@@ -141,7 +131,7 @@ class Router:
             )
             return self.get_section_resume_url(section_routing_path)
 
-        return self.get_last_location_in_questionnaire().url()
+        return self.get_next_location_for_questionnaire_flow()
 
     def get_next_location_for_questionnaire_flow(self):
         if self._schema.is_questionnaire_flow_hub and self.can_access_hub():
@@ -216,12 +206,9 @@ class Router:
 
     def _get_first_incomplete_location_in_section(self, routing_path):
         for block_id in routing_path:
-            block = self._schema.get_block(block_id)
-            block_type = block.get("type")
-
             if not self._is_block_complete(
                 block_id, routing_path.section_id, routing_path.list_item_id
-            ) and block_type not in {"Summary", "Confirmation"}:
+            ):
                 return Location(
                     block_id=block_id,
                     section_id=routing_path.section_id,

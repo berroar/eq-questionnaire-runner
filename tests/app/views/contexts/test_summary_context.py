@@ -75,7 +75,7 @@ class TestSummaryContext(TestStandardSummaryContext):
             "collapsible": True,
         }
         self.current_location = Location(
-            section_id="default-section", block_id="summary"
+            section_id="default-section", block_id="summary1"
         )
 
     def test_build_summary_rendering_context(self):

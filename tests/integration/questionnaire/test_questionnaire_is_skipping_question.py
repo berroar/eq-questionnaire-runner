@@ -1,14 +1,15 @@
 from tests.integration.integration_test_case import IntegrationTestCase
+from tests.integration.questionnaire import SUBMIT_URL_PATH
 
 
 class TestQuestionnaireChangeAnswer(IntegrationTestCase):
     def test_final_summary_not_available_if_any_question_incomplete(self):
 
         # Given I launched a survey and have not answered any questions
-        self.launchSurvey("test_is_skipping_to_end")
+        self.launchSurvey("test_skipping_to_section_end")
 
         # When I try access the final summary
-        self.get("questionnaire/summary")
+        self.get(SUBMIT_URL_PATH)
 
         # Then I am shown a 404 page
         self.assertStatusNotFound()
@@ -16,7 +17,7 @@ class TestQuestionnaireChangeAnswer(IntegrationTestCase):
     def test_final_summary_not_available_after_invalidating_section(self):
 
         # Given I launched a survey and have answered all questions
-        self.launchSurvey("test_is_skipping_to_end")
+        self.launchSurvey("test_skipping_to_section_end")
         self.post({"test-skipping-answer": "No"})
         self.assertInBody("Were you forced to complete section 1?")
         self.post()
@@ -25,6 +26,7 @@ class TestQuestionnaireChangeAnswer(IntegrationTestCase):
         self.assertInBody("Were you forced to complete section 2?")
         self.post()
 
+        self.assertInUrl(SUBMIT_URL_PATH)
         self.assertInBody("Please submit this survey to complete it")
         self.assertInBody("Were you forced to complete section 1?")
         self.assertInBody("Were you forced to complete section 2?")
@@ -37,7 +39,7 @@ class TestQuestionnaireChangeAnswer(IntegrationTestCase):
         self.get("questionnaire/test-skipping-forced#test-skipping-answer")
         self.post({"test-skipping-answer": "Yes"})
 
-        self.get("questionnaire/summary")
+        self.get(SUBMIT_URL_PATH)
 
         # Then I am shown a 404 page
         self.assertStatusNotFound()

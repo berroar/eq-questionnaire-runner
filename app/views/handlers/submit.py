@@ -12,10 +12,9 @@ from app.views.contexts import SubmitContext
 from app.views.handlers.submission import SubmissionHandler
 
 if TYPE_CHECKING:
-    from werkzeug import Response
-
-    from app.data_models import QuestionnaireStore
-    from app.questionnaire import QuestionnaireSchema
+    from werkzeug import Response  # pragma: no cover
+    from app.data_models import QuestionnaireStore  # pragma: no cover
+    from app.questionnaire import QuestionnaireSchema  # pragma: no cover
 
 
 class SubmitHandler:

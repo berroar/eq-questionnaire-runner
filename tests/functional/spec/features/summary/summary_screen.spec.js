@@ -57,6 +57,7 @@ describe("Summary Screen", () => {
 
   it("Given a number value of zero is entered when on the summary screen then formatted 0 should be displayed", () => {
     $(RadioPage.submit()).click();
+    $(DessertPage.answer()).setValue("Cake");
     $(DessertPage.submit()).click();
     $(DessertConfirmationPage.yes()).click();
     $(DessertConfirmationPage.submit()).click();
@@ -67,6 +68,7 @@ describe("Summary Screen", () => {
 
   it("Given no value is entered when on the summary screen then the correct response should be displayed", () => {
     $(RadioPage.submit()).click();
+    $(DessertPage.answer()).setValue("Cake");
     $(DessertPage.submit()).click();
     $(DessertConfirmationPage.yes()).click();
     $(DessertConfirmationPage.submit()).click();

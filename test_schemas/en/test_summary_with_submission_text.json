@@ -49,7 +49,7 @@
                                     {
                                         "id": "dessert",
                                         "label": "What is your favourite dessert?",
-                                        "mandatory": false,
+                                        "mandatory": true,
                                         "q_code": "30",
                                         "type": "TextField"
                                     }

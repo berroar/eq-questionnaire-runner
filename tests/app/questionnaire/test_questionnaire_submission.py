@@ -102,7 +102,7 @@ class TestQuestionnaireSubmissionFinalSummary(SubmissionTestCase):
 
         # Answer questions and submit survey
         self.post()
-        self.post()
+        self.post({"dessert-answer": "Cake"})
         self.post({"dessert-confirmation-answer": "Yes"})
         self.post()
         self.post()
@@ -123,7 +123,7 @@ class TestQuestionnaireSubmissionFinalSummary(SubmissionTestCase):
         # Given I launch and answer a questionnaire, When I submit but the submissions fails
         self.launchSurvey("test_summary")
         self.post()
-        self.post()
+        self.post({"dessert-answer": "Cake"})
         self.post({"dessert-confirmation-answer": "Yes"})
         self.post()
         self.post()

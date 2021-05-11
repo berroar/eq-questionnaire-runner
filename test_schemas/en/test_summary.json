@@ -93,7 +93,7 @@
                                     {
                                         "id": "dessert-answer",
                                         "label": "Dessert",
-                                        "mandatory": false,
+                                        "mandatory": true,
                                         "type": "TextField"
                                     }
                                 ]

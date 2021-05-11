@@ -14,8 +14,8 @@ class TestQuestionnaireFinalConfirmation(IntegrationTestCase):
 
         # Then we are presented with a confirmation page
         self.assertInUrl(SUBMIT_URL_PATH)
-        self.assertInBody("Thank you for your answers, do you wish to submit")
-        self.assertInBody("Submit answers")
+        self.assertInBody("Thank you for your answers, submit this to complete it")
+        self.assertInBody("Submit")
 
     def test_requesting_final_confirmation_before_finished_raises_404(self):
         # Given

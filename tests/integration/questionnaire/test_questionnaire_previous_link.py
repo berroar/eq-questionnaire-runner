@@ -27,7 +27,7 @@ class TestQuestionnairePreviousLink(IntegrationTestCase):
 
         # When we proceed through the questionnaire
         self.post()
-        self.post()
+        self.post({"dessert-answer": "Cake"})
         self.post({"dessert-confirmation-answer": "Yes"})
         self.post()
         self.assertInUrl(SUBMIT_URL_PATH)

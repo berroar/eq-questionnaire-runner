@@ -38,7 +38,7 @@ from app.views.handlers.submit import SubmitHandler
 from app.views.handlers.thank_you import ThankYou
 
 if TYPE_CHECKING:
-    from werkzeug import Response
+    from werkzeug import Response  # pragma: no cover
 
 logger = get_logger()
 

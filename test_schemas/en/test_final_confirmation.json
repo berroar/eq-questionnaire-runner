@@ -29,9 +29,9 @@
         "options": { "include_summary": false }
     },
     "submission": {
-        "button": "Submit answers",
-        "guidance": "Thank you for your answers, do you wish to submit",
-        "title": "Submit answers",
+        "button": "Submit",
+        "guidance": "Thank you for your answers, submit this to complete it",
+        "title": "Submit your questionnaire",
         "warning": "You cannot view your answers after submission"
     },
     "sections": [

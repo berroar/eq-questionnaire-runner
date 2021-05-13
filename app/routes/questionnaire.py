@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 import flask_babel
 from flask import Blueprint, g, redirect, request, url_for
 from flask_login import current_user, login_required
 from itsdangerous import BadSignature
 from structlog import get_logger
+from werkzeug import Response
 from werkzeug.exceptions import BadRequest, NotFound
 
 from app.authentication.no_questionnaire_state_exception import (
@@ -36,9 +37,6 @@ from app.views.handlers.section import SectionHandler
 from app.views.handlers.submission import SubmissionHandler
 from app.views.handlers.submit import SubmitHandler
 from app.views.handlers.thank_you import ThankYou
-
-if TYPE_CHECKING:
-    from werkzeug import Response  # pragma: no cover
 
 logger = get_logger()
 
@@ -146,6 +144,37 @@ def get_questionnaire(schema, questionnaire_store):
     )
 
 
+@questionnaire_blueprint.route("submit/", methods=["GET", "POST"])
+@with_questionnaire_store
+@with_schema
+def submit(
+    schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore
+) -> Union[Response, str]:
+    try:
+        submit_handler = SubmitHandler(
+            schema, questionnaire_store, flask_babel.get_locale().language
+        )
+    except InvalidLocationException:
+        raise NotFound
+
+    if not submit_handler.router.is_questionnaire_complete:
+        return redirect(
+            submit_handler.router.get_first_incomplete_location_in_questionnaire_url()
+        )
+
+    if request.method == "POST":
+        submit_handler.handle_post()
+        return redirect(url_for("post_submission.get_thank_you"))
+
+    context = submit_handler.get_context()
+    return render_template(
+        submit_handler.template,
+        content=context,
+        page_title=context["title"],
+        previous_location_url=submit_handler.get_previous_location_url(),
+    )
+
+
 @questionnaire_blueprint.route("sections/<section_id>/", methods=["GET", "POST"])
 @questionnaire_blueprint.route(
     "sections/<section_id>/<list_item_id>/", methods=["GET", "POST"]
@@ -221,31 +250,6 @@ def block(schema, questionnaire_store, block_id, list_name=None, list_item_id=No
     block_handler.handle_post()
     next_location_url = block_handler.get_next_location_url()
     return redirect(next_location_url)
-
-
-@questionnaire_blueprint.route("submit/", methods=["GET", "POST"])
-@with_questionnaire_store
-@with_schema
-def submit(
-    schema: QuestionnaireSchema, questionnaire_store: QuestionnaireStore
-) -> Union[Response, str]:
-    try:
-        submit_handler = SubmitHandler(
-            schema, questionnaire_store, flask_babel.get_locale().language
-        )
-    except InvalidLocationException:
-        raise NotFound
-
-    if request.method == "POST":
-        return submit_handler.handle_post()
-
-    context = submit_handler.get_context()
-    return render_template(
-        submit_handler.template,
-        content=context,
-        page_title=context["title"],
-        previous_location_url=submit_handler.get_previous_location_url(),
-    )
 
 
 @questionnaire_blueprint.route(

@@ -155,7 +155,7 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
 
         self.assertEqual(next_location, expected_location)
 
-    def test_return_to_summary_next_location_url(self):
+    def test_return_to_section_summary_next_location_url(self):
         schema = load_schema_from_name("test_section_summary")
         progress_store = ProgressStore(
             [
@@ -186,7 +186,31 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
             "/questionnaire/sections/property-details-section/", next_location
         )
 
-    def test_return_to_final_summary_next_location_url_section_completed(self):
+    def test_linear_questionnaire_get_next_location_url_routes_to_submit_page_when_questionnaire_completed(
+        self,
+    ):
+        schema = load_schema_from_name("test_textfield")
+        progress_store = ProgressStore(
+            [
+                {
+                    "section_id": "default-section",
+                    "list_item_id": None,
+                    "status": CompletionStatus.COMPLETED,
+                    "block_ids": ["name-block"],
+                }
+            ]
+        )
+
+        router = Router(
+            schema, self.answer_store, self.list_store, progress_store, self.metadata
+        )
+        current_location = Location(section_id="default-section", block_id="name-block")
+        routing_path = RoutingPath(["name-block"], section_id="default-section")
+        next_location = router.get_next_location_url(current_location, routing_path)
+
+        self.assertEqual(url_for("questionnaire.submit"), next_location)
+
+    def test_return_to_final_summary_next_location_url_questionnaire_complete(self):
         schema = load_schema_from_name("test_textfield")
         progress_store = ProgressStore(
             [
@@ -210,9 +234,9 @@ class TestRouter(AppContextTestCase):  # pylint: disable=too-many-public-methods
 
         self.assertEqual(url_for("questionnaire.submit"), next_location)
 
-    def test_return_to_final_summary_next_location_url_section_incomplete(self):
+    def test_return_to_final_summary_next_location_url_questionnaire_incomplete(self):
         schema = load_schema_from_name(
-            "test_skipping_to_questionnaire_end_multiple_section"
+            "test_skipping_to_questionnaire_end_multiple_sections"
         )
         answer_store = AnswerStore(
             [{"answer_id": "test-skipping-answer", "value": "Yes"}]

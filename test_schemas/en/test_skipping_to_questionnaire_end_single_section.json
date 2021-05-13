@@ -93,7 +93,7 @@
                         }
                     ],
                     "id": "test-skipping-group",
-                    "title": "Section 1"
+                    "title": "Group 1"
                 },
                 {
                     "blocks": [
@@ -125,7 +125,7 @@
                         }
                     ],
                     "id": "test-skipping-group-2",
-                    "title": "Section 1"
+                    "title": "Group 2"
                 }
             ]
         }

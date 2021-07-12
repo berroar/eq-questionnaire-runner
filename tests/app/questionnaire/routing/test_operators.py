@@ -195,6 +195,6 @@ def test_operation_all_in(operands, result):
         [([None, 0], ["Yes", "No"]), False],
     ],
 )
-def test_operation_all_in(operands, result):
+def test_operation_any_in(operands, result):
     operator = Operator(OperatorNames.ANY_IN)
     assert operator.evaluate(operands) is result

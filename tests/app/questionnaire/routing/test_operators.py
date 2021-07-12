@@ -6,23 +6,23 @@ from app.questionnaire.routing.operators import Operator, OperatorNames
 
 now = datetime.utcnow()
 
-test_data_for_equals_operation_numeric_or_date_equal_value = [
+test_data_equals_operation_numeric_and_date_matching_values = [
     [(0.5, 0.5), True],
     [(1.0, 1), True],
     [(3, 3), True],
     [(now, now), True],
 ]
 
-test_data_for_equals_operation_numeric_or_date = [
-    *test_data_for_equals_operation_numeric_or_date_equal_value,
+test_data_equals_operation_numeric_and_date = [
+    *test_data_equals_operation_numeric_and_date_matching_values,
     [(0.5, 0.7), False],
     [(1.0, 3), False],
     [(3, 7), False],
     [(now, datetime.utcnow()), False],
 ]
 
-test_data_for_equals_operation = [
-    *test_data_for_equals_operation_numeric_or_date,
+equals_operations = [
+    *test_data_equals_operation_numeric_and_date,
     [("Yes", "Yes"), True],
     [("CaseInsensitive", "caseInsensitive"), True],
     [(None, None), True],
@@ -32,7 +32,7 @@ test_data_for_equals_operation = [
     [(True, False), False],
 ]
 
-test_data_for_greater_than_less_than_operation = [
+test_data_greater_than_less_than_operations = [
     [(0.7, 0.5), True],
     [(2, 1.0), True],
     [(7, 3), True],
@@ -46,7 +46,7 @@ test_data_for_greater_than_less_than_operation = [
 
 @pytest.mark.parametrize(
     "operands, result",
-    test_data_for_equals_operation,
+    equals_operations,
 )
 def test_operation_equal(operands, result):
     operator = Operator(OperatorNames.EQUAL)
@@ -55,7 +55,7 @@ def test_operation_equal(operands, result):
 
 @pytest.mark.parametrize(
     "operands, result",
-    test_data_for_equals_operation,
+    equals_operations,
 )
 def test_operation_not_equal(operands, result):
     operator = Operator(OperatorNames.NOT_EQUAL)
@@ -64,7 +64,7 @@ def test_operation_not_equal(operands, result):
 
 @pytest.mark.parametrize(
     "operands, result",
-    test_data_for_greater_than_less_than_operation,
+    test_data_greater_than_less_than_operations,
 )
 def test_operation_greater_than(operands, result):
     operator = Operator(OperatorNames.GREATER_THAN)
@@ -74,8 +74,8 @@ def test_operation_greater_than(operands, result):
 @pytest.mark.parametrize(
     "operands, result",
     [
-        *test_data_for_greater_than_less_than_operation,
-        *test_data_for_equals_operation_numeric_or_date_equal_value,
+        *test_data_greater_than_less_than_operations,
+        *test_data_equals_operation_numeric_and_date_matching_values,
     ],
 )
 def test_operation_greater_than_or_equal(operands, result):
@@ -85,7 +85,7 @@ def test_operation_greater_than_or_equal(operands, result):
 
 @pytest.mark.parametrize(
     "operands, result",
-    test_data_for_greater_than_less_than_operation,
+    test_data_greater_than_less_than_operations,
 )
 def test_operation_less_than(operands, result):
     operator = Operator(OperatorNames.LESS_THAN)
@@ -93,7 +93,7 @@ def test_operation_less_than(operands, result):
 
 
 @pytest.mark.parametrize(
-    "operands, result", test_data_for_greater_than_less_than_operation
+    "operands, result", test_data_greater_than_less_than_operations
 )
 def test_operation_less_than_or_equal_operands_equal(operands, result):
     operator = Operator(OperatorNames.LESS_THAN_OR_EQUAL)
@@ -102,7 +102,7 @@ def test_operation_less_than_or_equal_operands_equal(operands, result):
 
 @pytest.mark.parametrize(
     "operands, result",
-    test_data_for_equals_operation_numeric_or_date_equal_value,
+    test_data_equals_operation_numeric_and_date_matching_values,
 )
 def test_operation_less_than_or_equal_operands_not_equal(operands, result):
     operator = Operator(OperatorNames.LESS_THAN_OR_EQUAL)

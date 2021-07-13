@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import Dict, Mapping, Sequence, Union
 
 from app.data_models.answer_store import AnswerStore
+from app.libs.utils import escape_value
 from app.questionnaire import QuestionnaireSchema
 from app.questionnaire.placeholder_transforms import PlaceholderTransforms
 from app.questionnaire.value_source_resolver import ValueSourceResolver
@@ -37,6 +38,7 @@ class PlaceholderParser:
             answer_store=self._answer_store,
             list_store=self._list_store,
             metadata=self._metadata,
+            schema=self._schema,
             location=self._location,
             list_item_id=self._list_item_id,
         )
@@ -54,7 +56,8 @@ class PlaceholderParser:
         try:
             return self._parse_transforms(placeholder["transforms"])
         except KeyError:
-            return self._value_source_resolver.resolve(placeholder["value"])
+            resolved_value = self._value_source_resolver.resolve(placeholder["value"])
+            return escape_value(resolved_value)
 
     def _parse_transforms(self, transform_list: Sequence[Mapping]):
         transformed_value = None
@@ -66,20 +69,20 @@ class PlaceholderParser:
 
             for arg_key, arg_value in transform["arguments"].items():
                 if isinstance(arg_value, list):
-                    transform_args[arg_key] = self._value_source_resolver.resolve(
-                        arg_value
-                    )
+                    transformed_value = self._value_source_resolver.resolve(arg_value)
                 elif isinstance(arg_value, dict):
                     if "value" in arg_value:
-                        transform_args[arg_key] = arg_value["value"]
+                        transformed_value = arg_value["value"]
                     elif arg_value["source"] == "previous_transform":
-                        transform_args[arg_key] = transformed_value
+                        transformed_value = transformed_value
                     else:
-                        transform_args[arg_key] = self._value_source_resolver.resolve(
+                        transformed_value = self._value_source_resolver.resolve(
                             arg_value
                         )
                 else:
-                    transform_args[arg_key] = arg_value
+                    transformed_value = arg_value
+
+                transform_args[arg_key] = escape_value(transformed_value)
 
             transformed_value = getattr(self._transformer, transform["transform"])(
                 **transform_args

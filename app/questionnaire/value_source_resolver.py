@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from app.data_models import AnswerStore, ListStore
 from app.data_models.list_store import ListModel
-from app.questionnaire import Location
+from app.questionnaire import Location, QuestionnaireSchema
 from app.questionnaire.relationship_location import RelationshipLocation
 
 value_source_types = Union[str, int, float, list, None]
@@ -14,8 +14,11 @@ class ValueSourceResolver:
     answer_store: AnswerStore
     list_store: ListStore
     metadata: dict
+    schema: QuestionnaireSchema
     location: Union[Location, RelationshipLocation]
-    list_item_id: str
+    list_item_id: Optional[str]
+    routing_path_block_ids: Optional[list] = None
+    use_default_value: bool = False
 
     def _get_list_item_id_from_value_source(self, value_source: dict) -> Optional[str]:
         list_item_selector = value_source.get("list_item_selector")
@@ -31,15 +34,37 @@ class ValueSourceResolver:
 
         return value or self.list_item_id
 
+    def _is_answer_on_path(self, answer_id: str) -> bool:
+        if self.routing_path_block_ids:
+            block_id = self.schema.get_block_for_answer_id(answer_id)["id"]
+            return block_id in self.routing_path_block_ids
+
+        return True
+
+    def _get_answer_value(
+        self, answer_id: str, list_item_id: str
+    ) -> value_source_types:
+        answer_value = None
+        if answer := self.answer_store.get_answer(answer_id, list_item_id):
+            answer_value = answer.value
+        elif self.use_default_value:
+            answer = self.schema.get_default_answer(answer_id)
+            answer_value = answer.value if answer else None
+
+        return answer_value if self._is_answer_on_path(answer_id) else None
+
     def _resolve_answer_value(self, value_source: dict) -> value_source_types:
         list_item_id = self._get_list_item_id_from_value_source(value_source)
-        answer = self.answer_store.get_escaped_answer_value(
-            value_source["identifier"], list_item_id
+        answer_id = value_source["identifier"]
+
+        answer_value = self._get_answer_value(
+            answer_id=answer_id, list_item_id=list_item_id
         )
+
         value: value_source_types = (
-            answer.get(value_source["selector"])
-            if "selector" in value_source
-            else answer
+            answer_value.get(value_source["selector"])
+            if "selector" in value_source and isinstance(answer_value, dict)
+            else answer_value
         )
         return value
 

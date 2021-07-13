@@ -1,3 +1,6 @@
+from jinja2 import escape
+
+
 def convert_tx_id(tx_id):
     """
     Converts the guid tx_id to string of 16 characters with a dash between every 4 characters
@@ -11,3 +14,19 @@ def convert_tx_id(tx_id):
 class ObjectFromDict:
     def __init__(self, properties):
         self.__dict__ = properties
+
+
+def escape_value(value):
+    if isinstance(value, list):
+        return [
+            escape(list_item) if list_item and isinstance(list_item, str) else list_item
+            for list_item in value
+        ]
+
+    if isinstance(value, dict):
+        escaped_dict = {}
+        for key, value in value.items():
+            escaped_dict[key] = escape(value) if isinstance(value, str) else value
+        return escaped_dict
+
+    return escape(value) if isinstance(value, str) else value

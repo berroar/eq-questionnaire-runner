@@ -24,9 +24,9 @@ def escape_value(value):
         ]
 
     if isinstance(value, dict):
-        escaped_dict = {}
-        for key, value in value.items():
-            escaped_dict[key] = escape(value) if isinstance(value, str) else value
-        return escaped_dict
+        return {
+            key: escape(val) if isinstance(val, str) else val
+            for key, val in value.items()
+        }
 
     return escape(value) if isinstance(value, str) else value

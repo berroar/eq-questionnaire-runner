@@ -6,6 +6,7 @@ from app.data_models.list_store import ListModel
 from app.questionnaire import Location, QuestionnaireSchema
 from app.questionnaire.relationship_location import RelationshipLocation
 
+answer_value_types = Union[str, int, float, list, dict, None]
 value_source_types = Union[str, int, float, list, None]
 
 
@@ -36,14 +37,17 @@ class ValueSourceResolver:
 
     def _is_answer_on_path(self, answer_id: str) -> bool:
         if self.routing_path_block_ids:
-            block_id = self.schema.get_block_for_answer_id(answer_id)["id"]
-            return block_id in self.routing_path_block_ids
+            block = self.schema.get_block_for_answer_id(answer_id)
+            if not block:
+                return False
+
+            return block["id"] in self.routing_path_block_ids
 
         return True
 
     def _get_answer_value(
-        self, answer_id: str, list_item_id: str
-    ) -> value_source_types:
+        self, answer_id: str, list_item_id: Optional[str]
+    ) -> answer_value_types:
         answer_value = None
         if answer := self.answer_store.get_answer(answer_id, list_item_id):
             answer_value = answer.value
@@ -61,12 +65,14 @@ class ValueSourceResolver:
             answer_id=answer_id, list_item_id=list_item_id
         )
 
-        value: value_source_types = (
-            answer_value.get(value_source["selector"])
-            if "selector" in value_source and isinstance(answer_value, dict)
-            else answer_value
-        )
-        return value
+        if isinstance(answer_value, dict):
+            return (
+                answer_value.get(value_source["selector"])
+                if "selector" in value_source
+                else None
+            )
+
+        return answer_value
 
     def _resolve_value_source_list(
         self, value_source_list: list[dict]

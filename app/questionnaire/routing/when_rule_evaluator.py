@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Union
+from dataclasses import dataclass, field
+from typing import Optional, Union
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
@@ -16,7 +16,7 @@ class WhenRuleEvaluator:
     list_store: ListStore
     metadata: dict
     location: Union[Location, RelationshipLocation]
-    routing_path_block_ids: list
+    routing_path_block_ids: Optional[list] = field(default_factory=list)
 
     def __post_init__(self):
         self.value_source_resolver = ValueSourceResolver(
@@ -26,6 +26,8 @@ class WhenRuleEvaluator:
             schema=self.schema,
             location=self.location,
             list_item_id=self.location.list_item_id,
+            routing_path_block_ids=self.routing_path_block_ids,
+            use_default_value=True,
         )
 
     def _evaluate(self, rule):

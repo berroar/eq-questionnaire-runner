@@ -22,6 +22,11 @@ class ValueSourceResolver:
     use_default_value: bool = False
 
     def _get_list_item_id_from_value_source(self, value_source: dict) -> Optional[str]:
+        """
+        Currently this always falls back to the provided list item id.
+        This will need to be changed in future if there is a need to support fetching answers outside the current repeat.
+        To do so, `list_item_selector` will need to be enforced for answer sources inside repeats.
+        """
         list_item_selector = value_source.get("list_item_selector")
         value: Optional[str] = None
         if list_item_selector:

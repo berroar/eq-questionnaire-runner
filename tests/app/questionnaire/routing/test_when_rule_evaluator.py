@@ -2,6 +2,7 @@ import pytest
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
+from app.questionnaire.routing.operators import OperatorNames
 from app.questionnaire.routing.when_rule_evaluator import WhenRuleEvaluator
 
 answer_source = {"source": "answers", "identifier": "some-answer"}
@@ -23,7 +24,7 @@ list_source_id_selector_same_name_items = {
     "id_selector": "same_name_items",
 }
 
-location_source = {"source": "location", "identifier": "list_item_id"}
+current_location_source = {"source": "location", "identifier": "list_item_id"}
 
 
 def get_list_items(num: int):
@@ -104,6 +105,33 @@ def get_when_rule_evaluator(
         list_store=list_store,
         location=location,
     )
+
+
+test_data_mixed_value_sources = (
+    {"==": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
+    {"!=": [{"source": "list", "identifier": "some-list"}, 0]},
+    {
+        ">=": [
+            {
+                "source": "answers",
+                "identifier": "answer-2",
+                "list_item_selector": {
+                    "source": "location",
+                    "id": "list_item_id",
+                },
+            },
+            9,
+        ]
+    },
+    {
+        "in": [
+            {"source": "metadata", "identifier": "region_code"},
+            ["GB-ENG", "GB-WLS"],
+        ]
+    },
+    {"==": [list_source_id_selector_first, current_location_source]},
+    {"any-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+)
 
 
 @pytest.mark.parametrize(
@@ -302,9 +330,9 @@ def test_list_source_with_id_selector_same_name_items(
 
 @pytest.mark.parametrize(
     "operator, first_argument, second_argument, result",
-    get_test_data_with_string_values_for_source(location_source),
+    get_test_data_with_string_values_for_source(current_location_source),
 )
-def test_location_source(operator, first_argument, second_argument, result):
+def test_current_location_source(operator, first_argument, second_argument, result):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         location=Location(
@@ -313,3 +341,115 @@ def test_location_source(operator, first_argument, second_argument, result):
     )
 
     assert when_rule_evaluator.evaluate() is result
+
+
+@pytest.mark.parametrize(
+    "operator, operands, result",
+    [
+        (
+            OperatorNames.AND,
+            [
+                *test_data_mixed_value_sources,
+                {"any-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+            ],
+            True,
+        ),
+        # Test inverse
+        (
+            OperatorNames.AND,
+            [
+                *test_data_mixed_value_sources,
+                {"any-in": [list_source_id_selector_same_name_items, ["item-5"]]},
+            ],
+            False,
+        ),
+        (
+            OperatorNames.OR,
+            [
+                *test_data_mixed_value_sources,
+                {"all-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+            ],
+            True,
+        ),
+        # Test inverse
+        (
+            OperatorNames.OR,
+            [
+                {"==": [{"source": "answers", "identifier": "answer-1"}, "No"]},
+                {"!=": [{"source": "list", "identifier": "some-list"}, 5]},
+                {
+                    ">=": [
+                        {
+                            "source": "answers",
+                            "identifier": "answer-2",
+                            "list_item_selector": {
+                                "source": "location",
+                                "id": "list_item_id",
+                            },
+                        },
+                        15,
+                    ]
+                },
+                {
+                    "in": [
+                        {"source": "metadata", "identifier": "region_code"},
+                        ["GB-NIR"],
+                    ]
+                },
+                {"!=": [list_source_id_selector_first, current_location_source]},
+                {"any-in": [list_source_id_selector_same_name_items, ["item-5"]]},
+            ],
+            False,
+        ),
+    ],
+)
+def test_logic_and_or(operator, operands, result):
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={operator: operands},
+        answer_store=AnswerStore(
+            [
+                {
+                    "answer_id": "answer-1",
+                    "list_item_id": "item-1",
+                    "value": "Yes, I do",
+                },
+                {
+                    "answer_id": "answer-2",
+                    "list_item_id": "item-1",
+                    "value": 10,
+                },
+            ]
+        ),
+        metadata={"region_code": "GB-ENG", "language_code": "en"},
+        list_store=ListStore(
+            [
+                {
+                    "name": "some-list",
+                    "items": get_list_items(5),
+                    "same_name_items": get_list_items(3),
+                }
+            ],
+        ),
+        location=Location(
+            section_id="some-section", block_id="some-block", list_item_id="item-1"
+        ),
+    )
+
+    assert when_rule_evaluator.evaluate() is result
+
+
+@pytest.mark.parametrize(
+    "operator, first_argument, second_argument, answer_value, result",
+    get_test_data_for_source(answer_source),
+)
+def test_logic_not(operator, first_argument, second_argument, answer_value, result):
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={OperatorNames.NOT: [{operator: [first_argument, second_argument]}]},
+        answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
+    )
+
+    assert when_rule_evaluator.evaluate() is not result
+
+
+# :TODO: Tests with nested values and mixed sources.
+# :TODO: Tests for date value sources

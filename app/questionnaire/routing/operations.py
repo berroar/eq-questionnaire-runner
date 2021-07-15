@@ -8,18 +8,16 @@ from app.questionnaire.rules import convert_to_datetime
 
 comparison_greater_than_types = Union[int, float, datetime]
 comparison_less_than_types = comparison_greater_than_types
-comparison_equal_types = Union[bool, str, int, float, None, datetime]
+comparison_types = Union[bool, str, int, float, None, datetime]
 
 
 @casefold
-def evaluate_equal(lhs: comparison_equal_types, rhs: comparison_equal_types) -> bool:
+def evaluate_equal(lhs: comparison_types, rhs: comparison_types) -> bool:
     return lhs == rhs
 
 
 @casefold
-def evaluate_not_equal(
-    lhs: comparison_equal_types, rhs: comparison_equal_types
-) -> bool:
+def evaluate_not_equal(lhs: comparison_types, rhs: comparison_types) -> bool:
     return lhs != rhs
 
 
@@ -76,14 +74,14 @@ def evaluate_any_in(lhs: Sequence, rhs: Sequence) -> bool:
 
 def resolve_datetime_from_string(
     date_string: str, offset: Optional[dict[str, int]] = None
-) -> datetime:
+) -> Optional[datetime]:
     value = (
         datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         if date_string == "now"
         else convert_to_datetime(date_string)
     )
 
-    if offset:
+    if offset and value:
         value += relativedelta(
             days=offset.get("days", 0),
             months=offset.get("months", 0),

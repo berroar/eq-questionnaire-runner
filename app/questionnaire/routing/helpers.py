@@ -1,19 +1,21 @@
 from functools import wraps
 from typing import Any, Callable
 
+from app.questionnaire.value_source_resolver import answer_value_types
 
-def _casefold(value):
+
+def _casefold(value: answer_value_types) -> answer_value_types:
     try:
         return (
             [_casefold(v) for v in value]
             if isinstance(value, (list, tuple))
-            else value.casefold()
+            else value.casefold()  # type: ignore
         )
     except AttributeError:
         return value
 
 
-def casefold(func: Callable):
+def casefold(func: Callable) -> Any:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         casefolded_args = [_casefold(arg) for arg in args]

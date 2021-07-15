@@ -1,11 +1,15 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Optional, Union
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
 from app.questionnaire.relationship_location import RelationshipLocation
 from app.questionnaire.routing.operators import Operator
-from app.questionnaire.value_source_resolver import ValueSourceResolver
+from app.questionnaire.value_source_resolver import (
+    ValueSourceResolver,
+    answer_value_types,
+)
 
 
 @dataclass
@@ -18,7 +22,7 @@ class WhenRuleEvaluator:
     location: Union[Location, RelationshipLocation]
     routing_path_block_ids: Optional[list] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.value_source_resolver = ValueSourceResolver(
             answer_store=self.answer_store,
             list_store=self.list_store,
@@ -31,10 +35,12 @@ class WhenRuleEvaluator:
         )
 
     @staticmethod
-    def _is_date_offset(rule: dict):
+    def _is_date_offset(rule: dict) -> bool:
         return any(x in rule for x in {"days", "months", "years"})
 
-    def _evaluate(self, rule):
+    def _evaluate(
+        self, rule: answer_value_types
+    ) -> Union[bool, datetime, answer_value_types]:
         if not isinstance(rule, dict) or self._is_date_offset(rule):
             return rule
 
@@ -50,5 +56,5 @@ class WhenRuleEvaluator:
         operands = (self._evaluate(operand) for operand in operands)
         return operator.evaluate(operands)
 
-    def evaluate(self):
+    def evaluate(self) -> Union[bool, datetime, answer_value_types]:
         return self._evaluate(self.rule)

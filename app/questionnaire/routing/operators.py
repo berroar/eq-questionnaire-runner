@@ -1,6 +1,7 @@
 from typing import Iterable
 
 from app.questionnaire.routing.operations import (
+    comparison_types,
     evaluate_all_in,
     evaluate_and,
     evaluate_any_in,
@@ -51,15 +52,15 @@ OPERATIONS = {
 
 
 class Operator:
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
         self._operation = OPERATIONS[self.name]
         self._short_circuit = self.name in [OperatorNames.AND, OperatorNames.OR]
 
-    def evaluate(self, operands: Iterable):
-        is_valid = (
+    def evaluate(self, operands: Iterable) -> comparison_types:
+        value: comparison_types = (
             self._operation(operands)
             if self._short_circuit
             else self._operation(*operands)
         )
-        return is_valid
+        return value

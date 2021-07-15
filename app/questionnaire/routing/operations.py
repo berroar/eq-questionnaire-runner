@@ -1,7 +1,10 @@
 from datetime import datetime
-from typing import Iterable, Sequence, Union
+from typing import Iterable, Optional, Sequence, Union
+
+from dateutil.relativedelta import relativedelta
 
 from app.questionnaire.routing.helpers import casefold
+from app.questionnaire.rules import convert_to_datetime
 
 comparison_greater_than_types = Union[int, float, datetime]
 comparison_less_than_types = comparison_greater_than_types
@@ -71,5 +74,20 @@ def evaluate_any_in(lhs: Sequence, rhs: Sequence) -> bool:
     return any(x in rhs for x in lhs)
 
 
-def resolve_date_from_string(date_string: str, offset: dict[str, int]):
-    pass
+def resolve_datetime_from_string(
+    date_string: str, offset: Optional[dict[str, int]] = None
+) -> datetime:
+    value = (
+        datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        if date_string == "now"
+        else convert_to_datetime(date_string)
+    )
+
+    if offset:
+        value += relativedelta(
+            days=offset.get("days", 0),
+            months=offset.get("months", 0),
+            years=offset.get("years", 0),
+        )
+
+    return value

@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import pytest
+from freezegun import freeze_time
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
@@ -26,12 +29,18 @@ list_source_id_selector_same_name_items = {
 
 current_location_source = {"source": "location", "identifier": "list_item_id"}
 
+now = datetime.utcnow()
+formatted_now = now.strftime("%Y-%m-%d")
+
 
 def get_list_items(num: int):
     return [f"item-{i}" for i in range(1, num + 1)]
 
 
 def get_test_data_for_source(source: dict):
+    """
+    operator, first_argument, second_argument, resolved_value, result
+    """
     return [
         ("==", source, "Maybe", "Maybe", True),
         ("==", "Maybe", source, "Maybe", True),
@@ -86,6 +95,54 @@ def get_test_data_with_string_values_for_source(source: dict):
         ("!=", source, "item-1", False),
         ("!=", "item-1", source, False),
         ("in", source, ["item-2"], False),
+    ]
+
+
+def get_test_data_for_date_value_for_source(source):
+    return [
+        ({"==": [{"date": [source]}, {"date": [formatted_now]}]}, True),
+        (
+            {
+                "!=": [
+                    {"date": [source, {"days": -1}]},
+                    {"date": [formatted_now]},
+                ]
+            },
+            True,
+        ),
+        ({"<": [{"date": [source, {"days": -1}]}, {"date": ["now"]}]}, True),
+        (
+            {
+                "<=": [
+                    {"date": [source, {"days": -1}]},
+                    {"date": ["now", {"days": -1}]},
+                ]
+            },
+            True,
+        ),
+        ({">": [{"date": [source]}, {"date": ["now", {"months": -1}]}]}, True),
+        (
+            {
+                ">=": [
+                    {"date": [source, {"months": -1}]},
+                    {"date": ["now", {"months": -1}]},
+                ]
+            },
+            True,
+        ),
+        # Test inverse
+        (
+            {
+                "==": [
+                    {"date": [source, {"days": -1}]},
+                    {"date": [formatted_now]},
+                ]
+            },
+            False,
+        ),
+        ({"!=": [{"date": [source]}, {"date": [formatted_now]}]}, False),
+        ({"<": [{"date": [source, {"days": 1}]}, {"date": ["now"]}]}, False),
+        ({">": [{"date": [source, {"months": -1}]}, {"date": ["now"]}]}, False),
     ]
 
 
@@ -587,4 +644,26 @@ def test_nested_rules(operator, operands, result):
     assert when_rule_evaluator.evaluate() is result
 
 
-# :TODO: Tests for date value sources
+@pytest.mark.parametrize(
+    "rule, result",
+    [
+        *get_test_data_for_date_value_for_source(answer_source),
+        *get_test_data_for_date_value_for_source(metadata_source),
+    ],
+)
+@freeze_time(now)
+def test_date_value(rule, result):
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule=rule,
+        answer_store=AnswerStore(
+            [
+                {
+                    "answer_id": "some-answer",
+                    "value": formatted_now,
+                }
+            ]
+        ),
+        metadata={"some-metadata": formatted_now},
+    )
+
+    assert when_rule_evaluator.evaluate() is result

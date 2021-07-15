@@ -30,8 +30,12 @@ class WhenRuleEvaluator:
             use_default_value=True,
         )
 
+    @staticmethod
+    def _is_date_offset(rule: dict):
+        return any(x in rule for x in {"days", "months", "years"})
+
     def _evaluate(self, rule):
-        if not isinstance(rule, dict):
+        if not isinstance(rule, dict) or self._is_date_offset(rule):
             return rule
 
         if "source" in rule:

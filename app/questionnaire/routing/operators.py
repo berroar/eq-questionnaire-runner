@@ -13,7 +13,7 @@ from app.questionnaire.routing.operations import (
     evaluate_not,
     evaluate_not_equal,
     evaluate_or,
-    resolve_date_from_string,
+    resolve_datetime_from_string,
 )
 
 
@@ -46,7 +46,7 @@ OPERATIONS = {
     OperatorNames.IN: evaluate_in,
     OperatorNames.ALL_IN: evaluate_all_in,
     OperatorNames.ANY_IN: evaluate_any_in,
-    OperatorNames.DATE: resolve_date_from_string,
+    OperatorNames.DATE: resolve_datetime_from_string,
 }
 
 

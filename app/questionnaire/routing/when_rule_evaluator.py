@@ -40,8 +40,8 @@ class WhenRuleEvaluator:
         operator = Operator(next(iter(rule)))
         operands = rule[operator.name]
 
-        if not isinstance(operands, list) and not isinstance(operands, tuple):
-            raise Exception("Got non list or tuple")
+        if not isinstance(operands, (list, tuple)):
+            raise TypeError(f"Got non list or tuple for operands - {type(operands)}")
 
         operands = (self._evaluate(operand) for operand in operands)
         return operator.evaluate(operands)

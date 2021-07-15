@@ -1,4 +1,4 @@
-from jinja2 import escape
+from markupsafe import escape
 
 
 def convert_tx_id(tx_id):

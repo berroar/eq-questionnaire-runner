@@ -1,13 +1,13 @@
 import pytest
 from flask import Flask, current_app
 
-from app.helpers.template_helpers import (
+from app.helpers.template_helpers import ContextHelper, get_survey_config
+from app.survey_config import (
+    BusinessSurveyConfig,
     CensusNISRASurveyConfig,
     CensusSurveyConfig,
-    ContextHelper,
     SurveyConfig,
     WelshCensusSurveyConfig,
-    get_survey_config,
 )
 
 
@@ -205,6 +205,7 @@ def test_get_page_header_context_business(app: Flask):
 
 def test_get_page_header_context_census(app: Flask):
     expected = {
+        "title": "Census 2021",
         "logo": "ons-logo-pos-en",
         "logoAlt": "Office for National Statistics logo",
         "titleLogo": "census-logo-en",
@@ -226,6 +227,7 @@ def test_get_page_header_context_census(app: Flask):
 
 def test_get_page_header_context_census_nisra(app: Flask):
     expected = {
+        "title": "Census 2021",
         "logo": "nisra-logo-en",
         "logoAlt": "Northern Ireland Statistics and Research Agency logo",
         "titleLogo": "census-logo-en",
@@ -254,6 +256,14 @@ def test_get_page_header_context_census_nisra(app: Flask):
             SurveyConfig(),
             {
                 "url": "https://ons.gov.uk/contact-us/",
+                "text": "Contact us",
+                "target": "_blank",
+            },
+        ),
+        (
+            BusinessSurveyConfig(),
+            {
+                "url": "https://surveys.ons.gov.uk/contact-us/",
                 "text": "Contact us",
                 "target": "_blank",
             },
@@ -302,6 +312,7 @@ def test_contact_us_url_context(
     "survey_config,expected",
     [
         (SurveyConfig(), None),
+        (BusinessSurveyConfig(), "https://surveys.ons.gov.uk/surveys/todo"),
         (CensusSurveyConfig(), "https://census.gov.uk/en/start"),
         (WelshCensusSurveyConfig(), "https://cyfrifiad.gov.uk/en/start"),
         (CensusNISRASurveyConfig(), "https://census.gov.uk/ni"),
@@ -326,8 +337,8 @@ def test_account_service_url_context(
     [
         ("default", "en", SurveyConfig),
         ("default", "cy", SurveyConfig),
-        ("business", "en", SurveyConfig),
-        ("business", "cy", SurveyConfig),
+        ("business", "en", BusinessSurveyConfig),
+        ("business", "cy", BusinessSurveyConfig),
         ("health", "en", SurveyConfig),
         ("health", "cy", SurveyConfig),
         ("social", "en", SurveyConfig),
@@ -338,6 +349,7 @@ def test_account_service_url_context(
         ("census", "cy", WelshCensusSurveyConfig),
         ("census-nisra", "en", CensusNISRASurveyConfig),
         ("census-nisra", "cy", CensusNISRASurveyConfig),
+        (None, None, BusinessSurveyConfig),
     ],
 )
 def test_get_survey_config(

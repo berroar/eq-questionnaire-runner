@@ -1,10 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
+from dateutil.relativedelta import relativedelta
 
+from app.questionnaire.routing.helpers import datetime_as_midnight
 from app.questionnaire.routing.operator import Operator
+from app.questionnaire.rules import convert_to_datetime
 
 now = datetime.utcnow()
+now_as_yyyy_mm_dd = now.strftime("%Y-%m-%d")
+now_as_yyyy_mm = now.strftime("%Y-%m")
+now_as_yyyy = now.strftime("%Y")
 
 test_data_equals_operation_numeric_and_date_matching_values = [
     [(0.5, 0.5), True],
@@ -198,6 +204,45 @@ def test_operation_all_in(operands, result):
 def test_operation_any_in(operands, result):
     operator = Operator(Operator.ANY_IN)
     assert operator.evaluate(operands) is result
+
+
+@pytest.mark.parametrize(
+    "date_string",
+    [None, now_as_yyyy_mm_dd, now_as_yyyy_mm, now_as_yyyy],
+)
+@pytest.mark.parametrize(
+    "offset",
+    [
+        None,
+        {"days": -1},
+        {"months": -1},
+        {"years": -1},
+        {"days": -1, "months": -1, "years": -1},
+        {"days": 1},
+        {"months": 1},
+        {"years": 1},
+        {"days": 1, "months": 1, "years": 1},
+    ],
+)
+def test_operation_date(date_string: str, offset):
+    operands = (date_string, offset)
+    operator = Operator(Operator.DATE)
+
+    offset = offset or {}
+    result = (
+        datetime_as_midnight(
+            convert_to_datetime(date_string)
+            + relativedelta(
+                days=offset.get("days", 0),
+                months=offset.get("months", 0),
+                years=offset.get("years", 0),
+            )
+        )
+        if date_string
+        else None
+    )
+
+    assert operator.evaluate(operands) == result
 
 
 @pytest.mark.parametrize(

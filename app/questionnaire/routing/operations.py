@@ -3,7 +3,7 @@ from typing import Iterable, Optional, Sequence, Union
 
 from dateutil.relativedelta import relativedelta
 
-from app.questionnaire.routing.helpers import casefold
+from app.questionnaire.routing.helpers import casefold, datetime_as_midnight
 from app.questionnaire.rules import convert_to_datetime
 
 answer_types = Union[bool, str, int, float, None, datetime]
@@ -70,7 +70,7 @@ def resolve_datetime_from_string(
     date_string: Optional[str], offset: Optional[dict[str, int]] = None
 ) -> Optional[datetime]:
     value = (
-        datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        datetime_as_midnight(datetime.utcnow())
         if date_string == "now"
         else convert_to_datetime(date_string)
     )

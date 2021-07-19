@@ -599,19 +599,6 @@ def test_logic_not(operator, first_argument, second_argument, answer_value, resu
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, result",
-    get_test_data_for_source(answer_source),
-)
-def test_date_source(operator, first_argument, second_argument, answer_value, result):
-    when_rule_evaluator = get_when_rule_evaluator(
-        rule={Operator.NOT: [{operator: [first_argument, second_argument]}]},
-        answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
-    )
-
-    assert when_rule_evaluator.evaluate() is not result
-
-
-@pytest.mark.parametrize(
     "operator, operands, result",
     [
         (

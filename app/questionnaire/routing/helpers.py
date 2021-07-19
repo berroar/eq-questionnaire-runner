@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 from typing import Any, Callable
 
@@ -23,3 +24,7 @@ def casefold(func: Callable) -> Any:
         return func(*casefolded_args, **casefolded_kwargs)
 
     return wrapper
+
+
+def datetime_as_midnight(date: datetime) -> datetime:
+    return date.replace(hour=0, minute=0, second=0, microsecond=0)

@@ -246,11 +246,11 @@ def test_operation_date(date_string: str, offset):
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands",
     [
-        [(None, 2), False],
-        [(2, None), False],
-        [(None, None), False],
+        [None, 2],
+        [2, None],
+        [None, None],
     ],
 )
 @pytest.mark.parametrize(
@@ -262,22 +262,22 @@ def test_operation_date(date_string: str, offset):
         Operator.LESS_THAN_OR_EQUAL,
     ],
 )
-def test_nonetype_operands_for_comparison_operators(operator_name, operands, result):
+def test_nonetype_operands_for_comparison_operators(operator_name, operands):
     operator = Operator(operator_name)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is False
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands",
     [
-        [(None, ["Yes"]), False],
-        [(["Yes"], None), False],
-        [(None, None), False],
+        [None, ["Yes"]],
+        [["Yes"], None],
+        [None, None],
     ],
 )
 @pytest.mark.parametrize(
     "operator_name", [Operator.ALL_IN, Operator.ANY_IN, Operator.IN]
 )
-def test_nonetype_operands_for_array_operators(operator_name, operands, result):
+def test_nonetype_operands_for_array_operators(operator_name, operands):
     operator = Operator(operator_name)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is False

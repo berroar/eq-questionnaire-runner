@@ -22,11 +22,6 @@ class ValueSourceResolver:
     use_default_value: bool = False
 
     def _get_list_item_id_from_value_source(self, value_source: dict) -> Optional[str]:
-        """
-        Currently this always falls back to the provided list item id.
-        This will need to be changed in future if there is a need to support fetching answers outside the current repeat.
-        To do so, `list_item_selector` will need to be enforced for answer sources inside repeats.
-        """
         list_item_selector = value_source.get("list_item_selector")
         value: Optional[str] = None
         if list_item_selector:
@@ -38,7 +33,7 @@ class ValueSourceResolver:
                     list_item_selector["id_selector"],
                 )
 
-        return value or self.list_item_id
+        return value
 
     def _is_answer_on_path(self, answer_id: str) -> bool:
         if self.routing_path_block_ids:
@@ -64,6 +59,13 @@ class ValueSourceResolver:
     def _resolve_answer_value(self, value_source: dict) -> value_source_types:
         list_item_id = self._get_list_item_id_from_value_source(value_source)
         answer_id = value_source["identifier"]
+        if not list_item_id:
+            list_item_id = (
+                self.list_item_id
+                if self.list_item_id
+                and self.schema.answer_should_have_list_item_id(answer_id)
+                else None
+            )
 
         answer_value = self._get_answer_value(
             answer_id=answer_id, list_item_id=list_item_id

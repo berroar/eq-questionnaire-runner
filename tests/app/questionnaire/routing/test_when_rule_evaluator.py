@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest.mock import Mock
 
 import pytest
 from freezegun import freeze_time
@@ -194,15 +195,33 @@ def get_test_data_for_date_value_for_source(source):
     ]
 
 
+def get_schema():
+    schema = Mock(
+        QuestionnaireSchema(
+            {
+                "questionnaire_flow": {
+                    "type": "Linear",
+                    "options": {"summary": {"collapsible": False}},
+                }
+            }
+        )
+    )
+    return schema
+
+
 def get_when_rule_evaluator(
     rule,
-    schema=QuestionnaireSchema({}),
+    schema=None,
     metadata=None,
     answer_store=AnswerStore(),
     list_store=ListStore(),
     location=Location(section_id="test-section", block_id="test-block"),
     routing_path_block_ids=None,
 ):
+    if not schema:
+        schema = get_schema()
+        schema.answer_should_have_list_item_id = Mock(return_value=True)
+
     return WhenRuleEvaluator(
         rule=rule,
         schema=schema,
@@ -751,6 +770,47 @@ def test_date_value(rule, result):
             ]
         ),
         metadata={"some-metadata": formatted_now},
+    )
+
+    assert when_rule_evaluator.evaluate() is result
+
+
+@pytest.mark.parametrize(
+    "answer_should_have_list_item_id, list_item_id_for_answer, result",
+    [
+        (True, None, False),
+        (True, "item-2", False),
+        (True, "item-1", True),
+        (False, None, True),
+        (False, "item-2", False),
+        (False, "item-1", False),
+    ],
+)
+def test_rule_uses_list_item_id_when_evaluating_answer_value(
+    answer_should_have_list_item_id, list_item_id_for_answer, result
+):
+    schema = get_schema()
+
+    # We are fetching an answer that is outside of a repeat or one not in a list collector.
+    schema.answer_should_have_list_item_id = Mock(
+        return_value=answer_should_have_list_item_id
+    )
+
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={Operator.EQUAL: [answer_source, "Yes"]},
+        schema=schema,
+        answer_store=AnswerStore(
+            [
+                {
+                    "answer_id": "some-answer",
+                    "list_item_id": list_item_id_for_answer,
+                    "value": "Yes",
+                }
+            ]
+        ),
+        location=Location(
+            section_id="some-section", block_id="some-block", list_item_id="item-1"
+        ),
     )
 
     assert when_rule_evaluator.evaluate() is result

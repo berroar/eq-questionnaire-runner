@@ -314,7 +314,7 @@ def test_get_list_item_id_for_answer_id_without_list_item_id(
 
     expected_list_item_id = None
 
-    list_item_id = schema.get_list_item_id_for_answer_id(
+    list_item_id = schema.answer_should_have_list_item_id(
         answer_id="answer1", list_item_id=expected_list_item_id
     )
 
@@ -326,7 +326,7 @@ def test_get_list_item_id_for_answer_id_without_repeat_or_list_collector(
 ):
     schema = QuestionnaireSchema(question_schema)
 
-    list_item_id = schema.get_list_item_id_for_answer_id(
+    list_item_id = schema.answer_should_have_list_item_id(
         answer_id="answer1", list_item_id="abc123"
     )
 
@@ -338,7 +338,7 @@ def test_get_answer_within_repeat_with_list_item_id(section_with_repeating_list)
 
     expected_list_item_id = "abc123"
 
-    list_item_id = schema.get_list_item_id_for_answer_id(
+    list_item_id = schema.answer_should_have_list_item_id(
         answer_id="proxy-answer", list_item_id=expected_list_item_id
     )
 
@@ -352,7 +352,7 @@ def test_get_answer_within_list_collector_with_list_item_id(
 
     expected_list_item_id = "abc123"
 
-    list_item_id = schema.get_list_item_id_for_answer_id(
+    list_item_id = schema.answer_should_have_list_item_id(
         answer_id="answer1", list_item_id=expected_list_item_id
     )
 

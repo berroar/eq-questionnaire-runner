@@ -42,90 +42,114 @@ def get_test_data_for_source(source: dict):
     operator, first_argument, second_argument, resolved_value, result
     """
     return [
-        ("==", source, "Maybe", "Maybe", True),
-        ("==", "Maybe", source, "Maybe", True),
-        ("!=", source, "Maybe", "Yes", True),
-        ("!=", "Maybe", source, "Yes", True),
-        (">", 2, source, 1, True),
-        (">", source, 1, 2, True),
-        (">=", 1, source, 1, True),
-        (">=", source, 1, 1, True),
-        ("<", 1, source, 2, True),
-        ("<", source, 2, 1, True),
-        ("<=", 1, source, 1, True),
-        ("<=", source, 1, 1, True),
-        ("in", source, ["Maybe"], "Maybe", True),
-        ("in", "Maybe", source, ["Maybe"], True),
-        ("any-in", source, ["Maybe"], ["Yes", "Maybe"], True),
-        ("any-in", ["Maybe"], source, ["Yes", "Maybe"], True),
-        ("all-in", source, ["Maybe"], ["Maybe"], True),
-        ("all-in", ["Maybe"], source, ["Maybe"], True),
+        (Operator.EQUAL, source, "Maybe", "Maybe", True),
+        (Operator.EQUAL, "Maybe", source, "Maybe", True),
+        (Operator.NOT_EQUAL, source, "Maybe", "Yes", True),
+        (Operator.NOT_EQUAL, "Maybe", source, "Yes", True),
+        (Operator.GREATER_THAN, 2, source, 1, True),
+        (Operator.GREATER_THAN, source, 1, 2, True),
+        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 1, True),
+        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 1, True),
+        (Operator.LESS_THAN, 1, source, 2, True),
+        (Operator.LESS_THAN, source, 2, 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, 1, source, 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, source, 1, 1, True),
+        (Operator.IN, source, ["Maybe"], "Maybe", True),
+        (Operator.IN, "Maybe", source, ["Maybe"], True),
+        (Operator.ANY_IN, source, ["Maybe"], ["Yes", "Maybe"], True),
+        (Operator.ANY_IN, ["Maybe"], source, ["Yes", "Maybe"], True),
+        (Operator.ALL_IN, source, ["Maybe"], ["Maybe"], True),
+        (Operator.ALL_IN, ["Maybe"], source, ["Maybe"], True),
         # Test inverse
-        ("==", source, "Maybe", "Yes", False),
-        ("==", "Maybe", source, "Yes", False),
-        ("!=", source, "Maybe", "Maybe", False),
-        ("!=", "Maybe", source, "Maybe", False),
-        (">", 1, source, 2, False),
-        (">", source, 2, 1, False),
-        (">=", 1, source, 2, False),
-        (">=", source, 1, 0, False),
-        ("<", 2, source, 1, False),
-        ("<", source, 1, 2, False),
-        ("<=", 1, source, 0, False),
-        ("<=", source, 1, 2, False),
-        ("in", source, ["Maybe"], "Yes", False),
-        ("in", "Maybe", source, ["Yes"], False),
-        ("any-in", source, ["Maybe"], ["Yes", "No"], False),
-        ("any-in", ["Maybe"], source, ["Yes", "No"], False),
-        ("all-in", source, ["Maybe"], ["Yes", "No"], False),
-        ("all-in", ["Maybe"], source, ["Yes"], False),
+        (Operator.EQUAL, source, "Maybe", "Yes", False),
+        (Operator.EQUAL, "Maybe", source, "Yes", False),
+        (Operator.NOT_EQUAL, source, "Maybe", "Maybe", False),
+        (Operator.NOT_EQUAL, "Maybe", source, "Maybe", False),
+        (Operator.GREATER_THAN, 1, source, 2, False),
+        (Operator.GREATER_THAN, source, 2, 1, False),
+        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 2, False),
+        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 0, False),
+        (Operator.LESS_THAN, 2, source, 1, False),
+        (Operator.LESS_THAN, source, 1, 2, False),
+        (Operator.LESS_THAN_OR_EQUAL, 1, source, 0, False),
+        (Operator.LESS_THAN_OR_EQUAL, source, 1, 2, False),
+        (Operator.IN, source, ["Maybe"], "Yes", False),
+        (Operator.IN, "Maybe", source, ["Yes"], False),
+        (Operator.ANY_IN, source, ["Maybe"], ["Yes", "No"], False),
+        (Operator.ANY_IN, ["Maybe"], source, ["Yes", "No"], False),
+        (Operator.ALL_IN, source, ["Maybe"], ["Yes", "No"], False),
+        (Operator.ALL_IN, ["Maybe"], source, ["Yes"], False),
     ]
 
 
 def get_test_data_with_string_values_for_source(source: dict):
     return [
-        ("==", source, "item-1", True),
-        ("==", "item-1", source, True),
-        ("!=", source, "item-2", True),
-        ("!=", "item-2", source, True),
-        ("in", source, ["item-1"], True),
+        (Operator.EQUAL, source, "item-1", True),
+        (Operator.EQUAL, "item-1", source, True),
+        (Operator.NOT_EQUAL, source, "item-2", True),
+        (Operator.NOT_EQUAL, "item-2", source, True),
+        (Operator.IN, source, ["item-1"], True),
         # Test inverse
-        ("==", source, "item-2", False),
-        ("==", "item-2", source, False),
-        ("!=", source, "item-1", False),
-        ("!=", "item-1", source, False),
-        ("in", source, ["item-2"], False),
+        (Operator.EQUAL, source, "item-2", False),
+        (Operator.EQUAL, "item-2", source, False),
+        (Operator.NOT_EQUAL, source, "item-1", False),
+        (Operator.NOT_EQUAL, "item-1", source, False),
+        (Operator.IN, source, ["item-2"], False),
     ]
 
 
 def get_test_data_for_date_value_for_source(source):
     return [
-        ({"==": [{"date": [source]}, {"date": [formatted_now]}]}, True),
         (
             {
-                "!=": [
-                    {"date": [source, {"days": -1}]},
-                    {"date": [formatted_now]},
+                Operator.EQUAL: [
+                    {Operator.DATE: [source]},
+                    {Operator.DATE: [formatted_now]},
                 ]
             },
             True,
         ),
-        ({"<": [{"date": [source, {"days": -1}]}, {"date": ["now"]}]}, True),
         (
             {
-                "<=": [
-                    {"date": [source, {"days": -1}]},
-                    {"date": ["now", {"days": -1}]},
+                Operator.NOT_EQUAL: [
+                    {Operator.DATE: [source, {"days": -1}]},
+                    {Operator.DATE: [formatted_now]},
                 ]
             },
             True,
         ),
-        ({">": [{"date": [source]}, {"date": ["now", {"months": -1}]}]}, True),
         (
             {
-                ">=": [
-                    {"date": [source, {"months": -1}]},
-                    {"date": ["now", {"months": -1}]},
+                Operator.LESS_THAN: [
+                    {Operator.DATE: [source, {"days": -1}]},
+                    {Operator.DATE: ["now"]},
+                ]
+            },
+            True,
+        ),
+        (
+            {
+                Operator.LESS_THAN_OR_EQUAL: [
+                    {Operator.DATE: [source, {"days": -1}]},
+                    {Operator.DATE: ["now", {"days": -1}]},
+                ]
+            },
+            True,
+        ),
+        (
+            {
+                Operator.GREATER_THAN: [
+                    {Operator.DATE: [source]},
+                    {Operator.DATE: ["now", {"months": -1}]},
+                ]
+            },
+            True,
+        ),
+        (
+            {
+                Operator.GREATER_THAN_OR_EQUAL: [
+                    {Operator.DATE: [source, {"months": -1}]},
+                    {Operator.DATE: ["now", {"months": -1}]},
                 ]
             },
             True,
@@ -133,16 +157,40 @@ def get_test_data_for_date_value_for_source(source):
         # Test inverse
         (
             {
-                "==": [
-                    {"date": [source, {"days": -1}]},
-                    {"date": [formatted_now]},
+                Operator.EQUAL: [
+                    {Operator.DATE: [source, {"days": -1}]},
+                    {Operator.DATE: [formatted_now]},
                 ]
             },
             False,
         ),
-        ({"!=": [{"date": [source]}, {"date": [formatted_now]}]}, False),
-        ({"<": [{"date": [source, {"days": 1}]}, {"date": ["now"]}]}, False),
-        ({">": [{"date": [source, {"months": -1}]}, {"date": ["now"]}]}, False),
+        (
+            {
+                Operator.NOT_EQUAL: [
+                    {Operator.DATE: [source]},
+                    {Operator.DATE: [formatted_now]},
+                ]
+            },
+            False,
+        ),
+        (
+            {
+                Operator.LESS_THAN: [
+                    {Operator.DATE: [source, {"days": 1}]},
+                    {Operator.DATE: ["now"]},
+                ]
+            },
+            False,
+        ),
+        (
+            {
+                Operator.GREATER_THAN: [
+                    {Operator.DATE: [source, {"months": -1}]},
+                    {Operator.DATE: ["now"]},
+                ]
+            },
+            False,
+        ),
     ]
 
 
@@ -167,10 +215,10 @@ def get_when_rule_evaluator(
 
 
 test_data_mixed_value_sources = (
-    {"==": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
-    {"!=": [{"source": "list", "identifier": "some-list"}, 0]},
+    {Operator.EQUAL: [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
+    {Operator.NOT_EQUAL: [{"source": "list", "identifier": "some-list"}, 0]},
     {
-        ">=": [
+        Operator.GREATER_THAN_OR_EQUAL: [
             {
                 "source": "answers",
                 "identifier": "answer-2",
@@ -183,13 +231,13 @@ test_data_mixed_value_sources = (
         ]
     },
     {
-        "in": [
+        Operator.IN: [
             {"source": "metadata", "identifier": "region_code"},
             ["GB-ENG", "GB-WLS"],
         ]
     },
-    {"==": [list_source_id_selector_first, current_location_source]},
-    {"any-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+    {Operator.EQUAL: [list_source_id_selector_first, current_location_source]},
+    {Operator.ANY_IN: [list_source_id_selector_same_name_items, ["item-1"]]},
 )
 
 
@@ -274,31 +322,31 @@ def test_metadata_source(
 @pytest.mark.parametrize(
     "operator, first_argument, second_argument, list_count, result",
     [
-        ("==", list_source, 1, 1, True),
-        ("==", 1, list_source, 1, True),
-        ("!=", list_source, 1, 2, True),
-        ("!=", 1, list_source, 2, True),
-        (">", 2, list_source, 1, True),
-        (">", list_source, 1, 2, True),
-        (">=", 1, list_source, 1, True),
-        (">=", list_source, 1, 1, True),
-        ("<", 1, list_source, 2, True),
-        ("<", list_source, 2, 1, True),
-        ("<=", 1, list_source, 1, True),
-        ("<=", list_source, 1, 1, True),
+        (Operator.EQUAL, list_source, 1, 1, True),
+        (Operator.EQUAL, 1, list_source, 1, True),
+        (Operator.NOT_EQUAL, list_source, 1, 2, True),
+        (Operator.NOT_EQUAL, 1, list_source, 2, True),
+        (Operator.GREATER_THAN, 2, list_source, 1, True),
+        (Operator.GREATER_THAN, list_source, 1, 2, True),
+        (Operator.GREATER_THAN_OR_EQUAL, 1, list_source, 1, True),
+        (Operator.GREATER_THAN_OR_EQUAL, list_source, 1, 1, True),
+        (Operator.LESS_THAN, 1, list_source, 2, True),
+        (Operator.LESS_THAN, list_source, 2, 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, 1, list_source, 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, list_source, 1, 1, True),
         # Test inverse
-        ("==", list_source, 1, 2, False),
-        ("==", 1, list_source, 2, False),
-        ("!=", list_source, 1, 1, False),
-        ("!=", 1, list_source, 1, False),
-        (">", 1, list_source, 2, False),
-        (">", list_source, 2, 1, False),
-        (">=", 1, list_source, 2, False),
-        (">=", list_source, 1, 0, False),
-        ("<", 2, list_source, 1, False),
-        ("<", list_source, 1, 2, False),
-        ("<=", 1, list_source, 0, False),
-        ("<=", list_source, 1, 2, False),
+        (Operator.EQUAL, list_source, 1, 2, False),
+        (Operator.EQUAL, 1, list_source, 2, False),
+        (Operator.NOT_EQUAL, list_source, 1, 1, False),
+        (Operator.NOT_EQUAL, 1, list_source, 1, False),
+        (Operator.GREATER_THAN, 1, list_source, 2, False),
+        (Operator.GREATER_THAN, list_source, 2, 1, False),
+        (Operator.GREATER_THAN_OR_EQUAL, 1, list_source, 2, False),
+        (Operator.GREATER_THAN_OR_EQUAL, list_source, 1, 0, False),
+        (Operator.LESS_THAN, 2, list_source, 1, False),
+        (Operator.LESS_THAN, list_source, 1, 2, False),
+        (Operator.LESS_THAN_OR_EQUAL, 1, list_source, 0, False),
+        (Operator.LESS_THAN_OR_EQUAL, list_source, 1, 2, False),
     ],
 )
 def test_list_source(operator, first_argument, second_argument, list_count, result):
@@ -330,38 +378,43 @@ def test_list_source_with_id_selector_first(
 @pytest.mark.parametrize(
     "operator, first_argument, second_argument, result",
     [
-        ("in", "item-2", list_source_id_selector_same_name_items, True),
-        ("any-in", list_source_id_selector_same_name_items, ["item-3", "item-5"], True),
-        ("any-in", ["item-1"], list_source_id_selector_same_name_items, True),
+        (Operator.IN, "item-2", list_source_id_selector_same_name_items, True),
         (
-            "all-in",
+            Operator.ANY_IN,
+            list_source_id_selector_same_name_items,
+            ["item-3", "item-5"],
+            True,
+        ),
+        (Operator.ANY_IN, ["item-1"], list_source_id_selector_same_name_items, True),
+        (
+            Operator.ALL_IN,
             list_source_id_selector_same_name_items,
             ["item-1", "item-2", "item-3"],
             True,
         ),
         (
-            "all-in",
+            Operator.ALL_IN,
             ["item-1", "item-2", "item-3"],
             list_source_id_selector_same_name_items,
             True,
         ),
         # Test inverse
-        ("in", "item-5", list_source_id_selector_same_name_items, False),
+        (Operator.IN, "item-5", list_source_id_selector_same_name_items, False),
         (
-            "any-in",
+            Operator.ANY_IN,
             list_source_id_selector_same_name_items,
             ["item-4", "item-5"],
             False,
         ),
-        ("any-in", ["item-5"], list_source_id_selector_same_name_items, False),
+        (Operator.ANY_IN, ["item-5"], list_source_id_selector_same_name_items, False),
         (
-            "all-in",
+            Operator.ALL_IN,
             list_source_id_selector_same_name_items,
             ["item-1", "item-2", "item-5"],
             False,
         ),
         (
-            "all-in",
+            Operator.ALL_IN,
             ["item-1", "item-2", "item-5"],
             list_source_id_selector_same_name_items,
             False,
@@ -409,7 +462,12 @@ def test_current_location_source(operator, first_argument, second_argument, resu
             Operator.AND,
             [
                 *test_data_mixed_value_sources,
-                {"any-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+                {
+                    Operator.ANY_IN: [
+                        list_source_id_selector_same_name_items,
+                        ["item-1"],
+                    ]
+                },
             ],
             True,
         ),
@@ -418,7 +476,12 @@ def test_current_location_source(operator, first_argument, second_argument, resu
             Operator.AND,
             [
                 *test_data_mixed_value_sources,
-                {"any-in": [list_source_id_selector_same_name_items, ["item-5"]]},
+                {
+                    Operator.ANY_IN: [
+                        list_source_id_selector_same_name_items,
+                        ["item-5"],
+                    ]
+                },
             ],
             False,
         ),
@@ -426,7 +489,12 @@ def test_current_location_source(operator, first_argument, second_argument, resu
             Operator.OR,
             [
                 *test_data_mixed_value_sources,
-                {"all-in": [list_source_id_selector_same_name_items, ["item-1"]]},
+                {
+                    Operator.ALL_IN: [
+                        list_source_id_selector_same_name_items,
+                        ["item-1"],
+                    ]
+                },
             ],
             True,
         ),
@@ -434,10 +502,20 @@ def test_current_location_source(operator, first_argument, second_argument, resu
         (
             Operator.OR,
             [
-                {"==": [{"source": "answers", "identifier": "answer-1"}, "No"]},
-                {"!=": [{"source": "list", "identifier": "some-list"}, 5]},
                 {
-                    ">=": [
+                    Operator.EQUAL: [
+                        {"source": "answers", "identifier": "answer-1"},
+                        "No",
+                    ]
+                },
+                {
+                    Operator.NOT_EQUAL: [
+                        {"source": "list", "identifier": "some-list"},
+                        5,
+                    ]
+                },
+                {
+                    Operator.GREATER_THAN_OR_EQUAL: [
                         {
                             "source": "answers",
                             "identifier": "answer-2",
@@ -450,13 +528,23 @@ def test_current_location_source(operator, first_argument, second_argument, resu
                     ]
                 },
                 {
-                    "in": [
+                    Operator.IN: [
                         {"source": "metadata", "identifier": "region_code"},
                         ["GB-NIR"],
                     ]
                 },
-                {"!=": [list_source_id_selector_first, current_location_source]},
-                {"any-in": [list_source_id_selector_same_name_items, ["item-5"]]},
+                {
+                    Operator.NOT_EQUAL: [
+                        list_source_id_selector_first,
+                        current_location_source,
+                    ]
+                },
+                {
+                    Operator.ANY_IN: [
+                        list_source_id_selector_same_name_items,
+                        ["item-5"],
+                    ]
+                },
             ],
             False,
         ),
@@ -529,9 +617,14 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
         (
             Operator.AND,
             [
-                {"==": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
                 {
-                    ">=": [
+                    Operator.EQUAL: [
+                        {"source": "answers", "identifier": "answer-1"},
+                        "Yes, I do",
+                    ]
+                },
+                {
+                    Operator.GREATER_THAN_OR_EQUAL: [
                         {
                             "source": "answers",
                             "identifier": "answer-2",
@@ -544,14 +637,14 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
                     ]
                 },
                 {
-                    "or": [
-                        {"==": [list_source, 0]},
+                    Operator.OR: [
+                        {Operator.EQUAL: [list_source, 0]},
                         {
-                            "and": [
+                            Operator.AND: [
                                 {
-                                    "not": [
+                                    Operator.NOT: [
                                         {
-                                            "in": [
+                                            Operator.IN: [
                                                 {
                                                     "source": "metadata",
                                                     "identifier": "region_code",
@@ -562,7 +655,7 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
                                     ]
                                 },
                                 {
-                                    "in": [
+                                    Operator.IN: [
                                         list_source_id_selector_first,
                                         list_source_id_selector_same_name_items,
                                     ]
@@ -577,16 +670,21 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
         (
             Operator.OR,
             [
-                {"!=": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
                 {
-                    "or": [
-                        {"==": [list_source, 0]},
+                    Operator.NOT_EQUAL: [
+                        {"source": "answers", "identifier": "answer-1"},
+                        "Yes, I do",
+                    ]
+                },
+                {
+                    Operator.OR: [
+                        {Operator.EQUAL: [list_source, 0]},
                         {
-                            "and": [
+                            Operator.AND: [
                                 {
-                                    "not": [
+                                    Operator.NOT: [
                                         {
-                                            "in": [
+                                            Operator.IN: [
                                                 {
                                                     "source": "metadata",
                                                     "identifier": "region_code",
@@ -597,7 +695,7 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
                                     ]
                                 },
                                 {
-                                    "in": [
+                                    Operator.IN: [
                                         list_source_id_selector_first,
                                         list_source_id_selector_same_name_items,
                                     ]

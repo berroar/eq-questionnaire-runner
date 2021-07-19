@@ -1,11 +1,11 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Union
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
 from app.questionnaire.relationship_location import RelationshipLocation
-from app.questionnaire.routing.operators import Operator
+from app.questionnaire.routing.operator import Operator
 from app.questionnaire.value_source_resolver import (
     ValueSourceResolver,
     answer_value_types,
@@ -20,7 +20,7 @@ class WhenRuleEvaluator:
     list_store: ListStore
     metadata: dict
     location: Union[Location, RelationshipLocation]
-    routing_path_block_ids: Optional[list] = field(default_factory=list)
+    routing_path_block_ids: Optional[list] = None
 
     def __post_init__(self) -> None:
         self.value_source_resolver = ValueSourceResolver(

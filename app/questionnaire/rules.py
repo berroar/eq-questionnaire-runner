@@ -135,14 +135,18 @@ def get_date_match_value(date_comparison, answer_store, schema, metadata):
     return match_value
 
 
-def convert_to_datetime(value: str) -> Optional[datetime]:
-    date_format = "%Y-%m"
-    if value and re.match(r"\d{4}-\d{2}-\d{2}", value):
-        date_format = "%Y-%m-%d"
-    if value and re.match(r"\d{4}$", value):
-        date_format = "%Y"
+def convert_to_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
 
-    return datetime.strptime(value, date_format) if value else None
+    if re.match(r"\d{4}-\d{2}-\d{2}", value):
+        date_format = "%Y-%m-%d"
+    elif re.match(r"\d{4}$", value):
+        date_format = "%Y"
+    else:
+        date_format = "%Y-%m"
+
+    return datetime.strptime(value, date_format)
 
 
 def evaluate_goto(

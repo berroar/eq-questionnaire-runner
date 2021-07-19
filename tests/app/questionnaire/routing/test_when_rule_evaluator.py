@@ -5,7 +5,7 @@ from freezegun import freeze_time
 
 from app.data_models import AnswerStore, ListStore
 from app.questionnaire import Location, QuestionnaireSchema
-from app.questionnaire.routing.operators import OperatorNames
+from app.questionnaire.routing.operator import Operator
 from app.questionnaire.routing.when_rule_evaluator import WhenRuleEvaluator
 
 answer_source = {"source": "answers", "identifier": "some-answer"}
@@ -153,6 +153,7 @@ def get_when_rule_evaluator(
     answer_store=AnswerStore(),
     list_store=ListStore(),
     location=Location(section_id="test-section", block_id="test-block"),
+    routing_path_block_ids=None,
 ):
     return WhenRuleEvaluator(
         rule=rule,
@@ -161,6 +162,7 @@ def get_when_rule_evaluator(
         answer_store=answer_store,
         list_store=list_store,
         location=location,
+        routing_path_block_ids=routing_path_block_ids,
     )
 
 
@@ -404,7 +406,7 @@ def test_current_location_source(operator, first_argument, second_argument, resu
     "operator, operands, result",
     [
         (
-            OperatorNames.AND,
+            Operator.AND,
             [
                 *test_data_mixed_value_sources,
                 {"any-in": [list_source_id_selector_same_name_items, ["item-1"]]},
@@ -413,7 +415,7 @@ def test_current_location_source(operator, first_argument, second_argument, resu
         ),
         # Test inverse
         (
-            OperatorNames.AND,
+            Operator.AND,
             [
                 *test_data_mixed_value_sources,
                 {"any-in": [list_source_id_selector_same_name_items, ["item-5"]]},
@@ -421,7 +423,7 @@ def test_current_location_source(operator, first_argument, second_argument, resu
             False,
         ),
         (
-            OperatorNames.OR,
+            Operator.OR,
             [
                 *test_data_mixed_value_sources,
                 {"all-in": [list_source_id_selector_same_name_items, ["item-1"]]},
@@ -430,7 +432,7 @@ def test_current_location_source(operator, first_argument, second_argument, resu
         ),
         # Test inverse
         (
-            OperatorNames.OR,
+            Operator.OR,
             [
                 {"==": [{"source": "answers", "identifier": "answer-1"}, "No"]},
                 {"!=": [{"source": "list", "identifier": "some-list"}, 5]},
@@ -501,7 +503,7 @@ def test_logic_and_or(operator, operands, result):
 )
 def test_logic_not(operator, first_argument, second_argument, answer_value, result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={OperatorNames.NOT: [{operator: [first_argument, second_argument]}]},
+        rule={Operator.NOT: [{operator: [first_argument, second_argument]}]},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
@@ -514,7 +516,7 @@ def test_logic_not(operator, first_argument, second_argument, answer_value, resu
 )
 def test_date_source(operator, first_argument, second_argument, answer_value, result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={OperatorNames.NOT: [{operator: [first_argument, second_argument]}]},
+        rule={Operator.NOT: [{operator: [first_argument, second_argument]}]},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
@@ -525,7 +527,7 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
     "operator, operands, result",
     [
         (
-            OperatorNames.AND,
+            Operator.AND,
             [
                 {"==": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
                 {
@@ -573,7 +575,7 @@ def test_date_source(operator, first_argument, second_argument, answer_value, re
             True,
         ),
         (
-            OperatorNames.OR,
+            Operator.OR,
             [
                 {"!=": [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
                 {

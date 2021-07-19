@@ -6,43 +6,37 @@ from dateutil.relativedelta import relativedelta
 from app.questionnaire.routing.helpers import casefold
 from app.questionnaire.rules import convert_to_datetime
 
-comparison_greater_than_types = Union[int, float, datetime]
-comparison_less_than_types = comparison_greater_than_types
-comparison_types = Union[bool, str, int, float, None, datetime]
+answer_types = Union[bool, str, int, float, None, datetime]
+
+
+def _are_non_none_operands(*operands: Union[Sequence, answer_types]) -> bool:
+    return all(operand is not None for operand in operands)
 
 
 @casefold
-def evaluate_equal(lhs: comparison_types, rhs: comparison_types) -> bool:
+def evaluate_equal(lhs: answer_types, rhs: answer_types) -> bool:
     return lhs == rhs
 
 
 @casefold
-def evaluate_not_equal(lhs: comparison_types, rhs: comparison_types) -> bool:
+def evaluate_not_equal(lhs: answer_types, rhs: answer_types) -> bool:
     return lhs != rhs
 
 
-def evaluate_greater_than(
-    lhs: comparison_greater_than_types, rhs: comparison_greater_than_types
-) -> bool:
-    return lhs > rhs  # type: ignore
+def evaluate_greater_than(lhs: answer_types, rhs: answer_types) -> bool:
+    return _are_non_none_operands(lhs, rhs) and lhs > rhs  # type: ignore
 
 
-def evaluate_greater_than_or_equal(
-    lhs: comparison_greater_than_types, rhs: comparison_greater_than_types
-) -> bool:
-    return lhs >= rhs  # type: ignore
+def evaluate_greater_than_or_equal(lhs: answer_types, rhs: answer_types) -> bool:
+    return _are_non_none_operands(lhs, rhs) and lhs >= rhs  # type: ignore
 
 
-def evaluate_less_than(
-    lhs: comparison_less_than_types, rhs: comparison_less_than_types
-) -> bool:
-    return lhs < rhs  # type: ignore
+def evaluate_less_than(lhs: answer_types, rhs: answer_types) -> bool:
+    return _are_non_none_operands(lhs, rhs) and lhs < rhs  # type: ignore
 
 
-def evaluate_less_than_or_equal(
-    lhs: comparison_less_than_types, rhs: comparison_less_than_types
-) -> bool:
-    return lhs <= rhs  # type: ignore
+def evaluate_less_than_or_equal(lhs: answer_types, rhs: answer_types) -> bool:
+    return _are_non_none_operands(lhs, rhs) and lhs <= rhs  # type: ignore
 
 
 def evaluate_not(value: bool) -> bool:
@@ -59,21 +53,21 @@ def evaluate_or(values: Iterable[bool]) -> bool:
 
 @casefold
 def evaluate_in(lhs: Union[str, int, float, None], rhs: Sequence) -> bool:
-    return lhs in rhs
+    return _are_non_none_operands(rhs) and lhs in rhs
 
 
 @casefold
 def evaluate_all_in(lhs: Sequence, rhs: Sequence) -> bool:
-    return all(x in rhs for x in lhs)
+    return _are_non_none_operands(lhs, rhs) and all(x in rhs for x in lhs)
 
 
 @casefold
 def evaluate_any_in(lhs: Sequence, rhs: Sequence) -> bool:
-    return any(x in rhs for x in lhs)
+    return _are_non_none_operands(lhs, rhs) and any(x in rhs for x in lhs)
 
 
 def resolve_datetime_from_string(
-    date_string: str, offset: Optional[dict[str, int]] = None
+    date_string: Optional[str], offset: Optional[dict[str, int]] = None
 ) -> Optional[datetime]:
     value = (
         datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)

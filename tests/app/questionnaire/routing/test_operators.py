@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from app.questionnaire.routing.operators import Operator, OperatorNames
+from app.questionnaire.routing.operator import Operator
 
 now = datetime.utcnow()
 
@@ -49,7 +49,7 @@ test_data_greater_than_less_than_operations = [
     equals_operations,
 )
 def test_operation_equal(operands, result):
-    operator = Operator(OperatorNames.EQUAL)
+    operator = Operator(Operator.EQUAL)
     assert operator.evaluate(operands) is result
 
 
@@ -58,7 +58,7 @@ def test_operation_equal(operands, result):
     equals_operations,
 )
 def test_operation_not_equal(operands, result):
-    operator = Operator(OperatorNames.NOT_EQUAL)
+    operator = Operator(Operator.NOT_EQUAL)
     assert operator.evaluate(operands) is not result
 
 
@@ -67,7 +67,7 @@ def test_operation_not_equal(operands, result):
     test_data_greater_than_less_than_operations,
 )
 def test_operation_greater_than(operands, result):
-    operator = Operator(OperatorNames.GREATER_THAN)
+    operator = Operator(Operator.GREATER_THAN)
     assert operator.evaluate(operands) is result
 
 
@@ -79,7 +79,7 @@ def test_operation_greater_than(operands, result):
     ],
 )
 def test_operation_greater_than_or_equal(operands, result):
-    operator = Operator(OperatorNames.GREATER_THAN_OR_EQUAL)
+    operator = Operator(Operator.GREATER_THAN_OR_EQUAL)
     assert operator.evaluate(operands) is result
 
 
@@ -88,7 +88,7 @@ def test_operation_greater_than_or_equal(operands, result):
     test_data_greater_than_less_than_operations,
 )
 def test_operation_less_than(operands, result):
-    operator = Operator(OperatorNames.LESS_THAN)
+    operator = Operator(Operator.LESS_THAN)
     assert operator.evaluate(operands) is not result
 
 
@@ -96,7 +96,7 @@ def test_operation_less_than(operands, result):
     "operands, result", test_data_greater_than_less_than_operations
 )
 def test_operation_less_than_or_equal_operands_equal(operands, result):
-    operator = Operator(OperatorNames.LESS_THAN_OR_EQUAL)
+    operator = Operator(Operator.LESS_THAN_OR_EQUAL)
     assert operator.evaluate(operands) is not result
 
 
@@ -105,13 +105,13 @@ def test_operation_less_than_or_equal_operands_equal(operands, result):
     test_data_equals_operation_numeric_and_date_matching_values,
 )
 def test_operation_less_than_or_equal_operands_not_equal(operands, result):
-    operator = Operator(OperatorNames.LESS_THAN_OR_EQUAL)
+    operator = Operator(Operator.LESS_THAN_OR_EQUAL)
     assert operator.evaluate(operands) is result
 
 
 @pytest.mark.parametrize("operand, result", [[False, True], [True, False]])
 def test_operation_not(operand, result):
-    operator = Operator(OperatorNames.NOT)
+    operator = Operator(Operator.NOT)
     assert operator.evaluate([operand]) is result
 
 
@@ -125,7 +125,7 @@ def test_operation_not(operand, result):
     ],
 )
 def test_operation_and(operands, result):
-    operator = Operator(OperatorNames.AND)
+    operator = Operator(Operator.AND)
     assert operator.evaluate(operands) is result
 
 
@@ -139,7 +139,7 @@ def test_operation_and(operands, result):
     ],
 )
 def test_operation_or(operands, result):
-    operator = Operator(OperatorNames.OR)
+    operator = Operator(Operator.OR)
     assert operator.evaluate(operands) is result
 
 
@@ -158,7 +158,7 @@ def test_operation_or(operands, result):
     ],
 )
 def test_operation_in(operands, result):
-    operator = Operator(OperatorNames.IN)
+    operator = Operator(Operator.IN)
     assert operator.evaluate(operands) is result
 
 
@@ -177,7 +177,7 @@ def test_operation_in(operands, result):
     ],
 )
 def test_operation_all_in(operands, result):
-    operator = Operator(OperatorNames.ALL_IN)
+    operator = Operator(Operator.ALL_IN)
     assert operator.evaluate(operands) is result
 
 
@@ -196,5 +196,43 @@ def test_operation_all_in(operands, result):
     ],
 )
 def test_operation_any_in(operands, result):
-    operator = Operator(OperatorNames.ANY_IN)
+    operator = Operator(Operator.ANY_IN)
+    assert operator.evaluate(operands) is result
+
+
+@pytest.mark.parametrize(
+    "operands, result",
+    [
+        [(None, 2), False],
+        [(2, None), False],
+        [(None, None), False],
+    ],
+)
+@pytest.mark.parametrize(
+    "operator_name",
+    [
+        Operator.GREATER_THAN,
+        Operator.GREATER_THAN_OR_EQUAL,
+        Operator.LESS_THAN,
+        Operator.LESS_THAN_OR_EQUAL,
+    ],
+)
+def test_nonetype_operands_for_comparison_operators(operator_name, operands, result):
+    operator = Operator(operator_name)
+    assert operator.evaluate(operands) is result
+
+
+@pytest.mark.parametrize(
+    "operands, result",
+    [
+        [(None, ["Yes"]), False],
+        [(["Yes"], None), False],
+        [(None, None), False],
+    ],
+)
+@pytest.mark.parametrize(
+    "operator_name", [Operator.ALL_IN, Operator.ANY_IN, Operator.IN]
+)
+def test_nonetype_operands_for_array_operators(operator_name, operands, result):
+    operator = Operator(operator_name)
     assert operator.evaluate(operands) is result

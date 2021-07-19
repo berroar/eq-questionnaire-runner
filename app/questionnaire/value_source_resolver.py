@@ -43,24 +43,23 @@ class ValueSourceResolver:
     def _is_answer_on_path(self, answer_id: str) -> bool:
         if self.routing_path_block_ids:
             block = self.schema.get_block_for_answer_id(answer_id)
-            if not block:
-                return False
-
-            return block["id"] in self.routing_path_block_ids
+            return block is not None and block["id"] in self.routing_path_block_ids
 
         return True
 
     def _get_answer_value(
         self, answer_id: str, list_item_id: Optional[str]
     ) -> answer_value_types:
-        answer_value = None
-        if answer := self.answer_store.get_answer(answer_id, list_item_id):
-            answer_value = answer.value
-        elif self.use_default_value:
-            answer = self.schema.get_default_answer(answer_id)
-            answer_value = answer.value if answer else None
+        if not self._is_answer_on_path(answer_id):
+            return None
 
-        return answer_value if self._is_answer_on_path(answer_id) else None
+        if answer := self.answer_store.get_answer(answer_id, list_item_id):
+            return answer.value
+
+        if self.use_default_value and (
+            answer := self.schema.get_default_answer(answer_id)
+        ):
+            return answer.value
 
     def _resolve_answer_value(self, value_source: dict) -> value_source_types:
         list_item_id = self._get_list_item_id_from_value_source(value_source)

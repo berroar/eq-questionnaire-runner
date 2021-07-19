@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from app.questionnaire.routing.operations import (
-    comparison_types,
+    answer_types,
     evaluate_all_in,
     evaluate_and,
     evaluate_any_in,
@@ -18,7 +18,7 @@ from app.questionnaire.routing.operations import (
 )
 
 
-class OperatorNames:
+class Operator:
     NOT = "not"
     AND = "and"
     OR = "or"
@@ -33,34 +33,32 @@ class OperatorNames:
     ANY_IN = "any-in"
     DATE = "date"
 
-
-OPERATIONS = {
-    OperatorNames.NOT: evaluate_not,
-    OperatorNames.AND: evaluate_and,
-    OperatorNames.OR: evaluate_or,
-    OperatorNames.EQUAL: evaluate_equal,
-    OperatorNames.NOT_EQUAL: evaluate_not_equal,
-    OperatorNames.GREATER_THAN: evaluate_greater_than,
-    OperatorNames.LESS_THAN: evaluate_less_than,
-    OperatorNames.GREATER_THAN_OR_EQUAL: evaluate_greater_than_or_equal,
-    OperatorNames.LESS_THAN_OR_EQUAL: evaluate_less_than_or_equal,
-    OperatorNames.IN: evaluate_in,
-    OperatorNames.ALL_IN: evaluate_all_in,
-    OperatorNames.ANY_IN: evaluate_any_in,
-    OperatorNames.DATE: resolve_datetime_from_string,
-}
-
-
-class Operator:
     def __init__(self, name: str) -> None:
         self.name = name
         self._operation = OPERATIONS[self.name]
-        self._short_circuit = self.name in [OperatorNames.AND, OperatorNames.OR]
+        self._short_circuit = self.name in {Operator.AND, Operator.OR}
 
-    def evaluate(self, operands: Iterable) -> comparison_types:
-        value: comparison_types = (
+    def evaluate(self, operands: Iterable) -> answer_types:
+        value: answer_types = (
             self._operation(operands)
             if self._short_circuit
             else self._operation(*operands)
         )
         return value
+
+
+OPERATIONS = {
+    Operator.NOT: evaluate_not,
+    Operator.AND: evaluate_and,
+    Operator.OR: evaluate_or,
+    Operator.EQUAL: evaluate_equal,
+    Operator.NOT_EQUAL: evaluate_not_equal,
+    Operator.GREATER_THAN: evaluate_greater_than,
+    Operator.LESS_THAN: evaluate_less_than,
+    Operator.GREATER_THAN_OR_EQUAL: evaluate_greater_than_or_equal,
+    Operator.LESS_THAN_OR_EQUAL: evaluate_less_than_or_equal,
+    Operator.IN: evaluate_in,
+    Operator.ALL_IN: evaluate_all_in,
+    Operator.ANY_IN: evaluate_any_in,
+    Operator.DATE: resolve_datetime_from_string,
+}

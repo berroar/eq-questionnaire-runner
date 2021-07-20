@@ -40,7 +40,7 @@ def get_list_items(num: int):
 
 def get_test_data_for_source(source: dict):
     """
-    operator, first_argument, second_argument, resolved_value, result
+    operator, first_argument, second_argument, resolved_value, expected_result
     """
     return [
         (Operator.EQUAL, source, "Maybe", "Maybe", True),
@@ -271,24 +271,26 @@ test_data_mixed_value_sources = (
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, result",
+    "operator, first_argument, second_argument, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
-def test_answer_source(operator, first_argument, second_argument, answer_value, result):
+def test_answer_source(
+    operator, first_argument, second_argument, answer_value, expected_result
+):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, result",
+    "operator, first_argument, second_argument, answer_value, expected_result",
     get_test_data_for_source(answer_source_list_item_selector_location),
 )
 def test_answer_source_with_list_item_selector_location(
-    operator, first_argument, second_argument, answer_value, result
+    operator, first_argument, second_argument, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
@@ -306,15 +308,15 @@ def test_answer_source_with_list_item_selector_location(
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, result",
+    "operator, first_argument, second_argument, answer_value, expected_result",
     get_test_data_for_source(answer_source_list_item_selector_list),
 )
 def test_answer_source_with_list_item_selector_list(
-    operator, first_argument, second_argument, answer_value, result
+    operator, first_argument, second_argument, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
@@ -330,26 +332,26 @@ def test_answer_source_with_list_item_selector_list(
         list_store=ListStore([{"name": "some-list", "items": get_list_items(3)}]),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, metadata_value, result",
+    "operator, first_argument, second_argument, metadata_value, expected_result",
     get_test_data_for_source(metadata_source),
 )
 def test_metadata_source(
-    operator, first_argument, second_argument, metadata_value, result
+    operator, first_argument, second_argument, metadata_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         metadata={"some-metadata": metadata_value},
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, list_count, result",
+    "operator, first_argument, second_argument, list_count, expected_result",
     [
         (Operator.EQUAL, list_source, 1, 1, True),
         (Operator.EQUAL, 1, list_source, 1, True),
@@ -378,7 +380,9 @@ def test_metadata_source(
         (Operator.LESS_THAN_OR_EQUAL, list_source, 1, 2, False),
     ],
 )
-def test_list_source(operator, first_argument, second_argument, list_count, result):
+def test_list_source(
+    operator, first_argument, second_argument, list_count, expected_result
+):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         list_store=ListStore(
@@ -386,26 +390,26 @@ def test_list_source(operator, first_argument, second_argument, list_count, resu
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, result",
+    "operator, first_argument, second_argument, expected_result",
     get_test_data_with_string_values_for_source(list_source_id_selector_first),
 )
 def test_list_source_with_id_selector_first(
-    operator, first_argument, second_argument, result
+    operator, first_argument, second_argument, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         list_store=ListStore([{"name": "some-list", "items": get_list_items(1)}]),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, result",
+    "operator, first_argument, second_argument, expected_result",
     [
         (Operator.IN, "item-2", list_source_id_selector_same_name_items, True),
         (
@@ -451,7 +455,7 @@ def test_list_source_with_id_selector_first(
     ],
 )
 def test_list_source_with_id_selector_same_name_items(
-    operator, first_argument, second_argument, result
+    operator, first_argument, second_argument, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
@@ -466,14 +470,16 @@ def test_list_source_with_id_selector_same_name_items(
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, result",
+    "operator, first_argument, second_argument, expected_result",
     get_test_data_with_string_values_for_source(current_location_source),
 )
-def test_current_location_source(operator, first_argument, second_argument, result):
+def test_current_location_source(
+    operator, first_argument, second_argument, expected_result
+):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: [first_argument, second_argument]},
         location=Location(
@@ -481,11 +487,11 @@ def test_current_location_source(operator, first_argument, second_argument, resu
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, operands, result",
+    "operator, operands, expected_result",
     [
         (
             Operator.AND,
@@ -579,7 +585,7 @@ def test_current_location_source(operator, first_argument, second_argument, resu
         ),
     ],
 )
-def test_logic_and_or(operator, operands, result):
+def test_logic_and_or(operator, operands, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: operands},
         answer_store=AnswerStore(
@@ -611,24 +617,26 @@ def test_logic_and_or(operator, operands, result):
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, result",
+    "operator, first_argument, second_argument, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
-def test_logic_not(operator, first_argument, second_argument, answer_value, result):
+def test_logic_not(
+    operator, first_argument, second_argument, answer_value, expected_result
+):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={Operator.NOT: [{operator: [first_argument, second_argument]}]},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
-    assert when_rule_evaluator.evaluate() is not result
+    assert when_rule_evaluator.evaluate() is not expected_result
 
 
 @pytest.mark.parametrize(
-    "operator, operands, result",
+    "operator, operands, expected_result",
     [
         (
             Operator.AND,
@@ -725,7 +733,7 @@ def test_logic_not(operator, first_argument, second_argument, answer_value, resu
         ),
     ],
 )
-def test_nested_rules(operator, operands, result):
+def test_nested_rules(operator, operands, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
         rule={operator: operands},
         answer_store=AnswerStore(
@@ -757,7 +765,7 @@ def test_nested_rules(operator, operands, result):
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
@@ -809,14 +817,14 @@ def test_array_operator_rule_with_nonetype_operands(operator_name, operands):
 
 
 @pytest.mark.parametrize(
-    "rule, result",
+    "rule, expected_result",
     [
         *get_test_data_for_date_value_for_source(answer_source),
         *get_test_data_for_date_value_for_source(metadata_source),
     ],
 )
 @freeze_time(now)
-def test_date_value(rule, result):
+def test_date_value(rule, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
         rule=rule,
         answer_store=AnswerStore(
@@ -830,11 +838,11 @@ def test_date_value(rule, result):
         metadata={"some-metadata": formatted_now},
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
 @pytest.mark.parametrize(
-    "answer_should_have_list_item_id, list_item_id_for_answer, result",
+    "answer_should_have_list_item_id, list_item_id_for_answer, expected_result",
     [
         (True, None, False),
         (True, "item-2", False),
@@ -845,7 +853,7 @@ def test_date_value(rule, result):
     ],
 )
 def test_rule_uses_list_item_id_when_evaluating_answer_value(
-    answer_should_have_list_item_id, list_item_id_for_answer, result
+    answer_should_have_list_item_id, list_item_id_for_answer, expected_result
 ):
     schema = get_schema()
 
@@ -871,8 +879,29 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
         ),
     )
 
-    assert when_rule_evaluator.evaluate() is result
+    assert when_rule_evaluator.evaluate() is expected_result
 
 
-# :TODO: Test with answer values not on path
+@pytest.mark.parametrize("is_answer_on_path", [True, False])
+def test_answer_with_routing_path_block_ids(is_answer_on_path):
+    schema = get_schema()
+
+    schema.answer_should_have_list_item_id = Mock(return_value=False)
+
+    id_prefix = "some" if is_answer_on_path else "some-other"
+    schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
+
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={Operator.EQUAL: ["Yes", answer_source]},
+        schema=schema,
+        answer_store=AnswerStore(
+            [{"answer_id": f"{id_prefix}-answer", "value": "Yes"}]
+        ),
+        routing_path_block_ids=[f"{id_prefix}-block"],
+    )
+
+    expected_result = True if is_answer_on_path else False
+    assert when_rule_evaluator.evaluate() is expected_result
+
+
 # :TODO: Test with non existent answer values but has default value

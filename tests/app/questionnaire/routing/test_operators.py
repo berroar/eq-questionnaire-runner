@@ -51,78 +51,78 @@ test_data_greater_than_less_than_operations = [
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     equals_operations,
 )
-def test_operation_equal(operands, result):
+def test_operation_equal(operands, expected_result):
     operator = Operator(Operator.EQUAL)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     equals_operations,
 )
-def test_operation_not_equal(operands, result):
+def test_operation_not_equal(operands, expected_result):
     operator = Operator(Operator.NOT_EQUAL)
-    assert operator.evaluate(operands) is not result
+    assert operator.evaluate(operands) is not expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     test_data_greater_than_less_than_operations,
 )
-def test_operation_greater_than(operands, result):
+def test_operation_greater_than(operands, expected_result):
     operator = Operator(Operator.GREATER_THAN)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         *test_data_greater_than_less_than_operations,
         *test_data_equals_operation_numeric_and_date_matching_values,
     ],
 )
-def test_operation_greater_than_or_equal(operands, result):
+def test_operation_greater_than_or_equal(operands, expected_result):
     operator = Operator(Operator.GREATER_THAN_OR_EQUAL)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     test_data_greater_than_less_than_operations,
 )
-def test_operation_less_than(operands, result):
+def test_operation_less_than(operands, expected_result):
     operator = Operator(Operator.LESS_THAN)
-    assert operator.evaluate(operands) is not result
+    assert operator.evaluate(operands) is not expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result", test_data_greater_than_less_than_operations
+    "operands, expected_result", test_data_greater_than_less_than_operations
 )
-def test_operation_less_than_or_equal_operands_equal(operands, result):
+def test_operation_less_than_or_equal_operands_equal(operands, expected_result):
     operator = Operator(Operator.LESS_THAN_OR_EQUAL)
-    assert operator.evaluate(operands) is not result
+    assert operator.evaluate(operands) is not expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     test_data_equals_operation_numeric_and_date_matching_values,
 )
-def test_operation_less_than_or_equal_operands_not_equal(operands, result):
+def test_operation_less_than_or_equal_operands_not_equal(operands, expected_result):
     operator = Operator(Operator.LESS_THAN_OR_EQUAL)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
-@pytest.mark.parametrize("operand, result", [[False, True], [True, False]])
-def test_operation_not(operand, result):
+@pytest.mark.parametrize("operand, expected_result", [[False, True], [True, False]])
+def test_operation_not(operand, expected_result):
     operator = Operator(Operator.NOT)
-    assert operator.evaluate([operand]) is result
+    assert operator.evaluate([operand]) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         [(True, True), True],
         [(True, True, True, True), True],
@@ -130,13 +130,13 @@ def test_operation_not(operand, result):
         [(False, True, True, True), False],
     ],
 )
-def test_operation_and(operands, result):
+def test_operation_and(operands, expected_result):
     operator = Operator(Operator.AND)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         [(True, True), True],
         [(True, True, True, True), True],
@@ -144,13 +144,13 @@ def test_operation_and(operands, result):
         [(False, False, False, True), True],
     ],
 )
-def test_operation_or(operands, result):
+def test_operation_or(operands, expected_result):
     operator = Operator(Operator.OR)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         [("Yes", ["Yes", "No"]), True],
         [("CaseInsensitive", ["caseInsensitive", "Other"]), True],
@@ -163,13 +163,13 @@ def test_operation_or(operands, result):
         [(None, ["Yes", "No"]), False],
     ],
 )
-def test_operation_in(operands, result):
+def test_operation_in(operands, expected_result):
     operator = Operator(Operator.IN)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         [(["Yes", "No"], ["Yes", "No", "Okay"]), True],
         [(["CaseInsensitive", "other"], ["caseInsensitive", "Other"]), True],
@@ -182,13 +182,13 @@ def test_operation_in(operands, result):
         [([None, "No"], ["Yes", "No"]), False],
     ],
 )
-def test_operation_all_in(operands, result):
+def test_operation_all_in(operands, expected_result):
     operator = Operator(Operator.ALL_IN)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
-    "operands, result",
+    "operands, expected_result",
     [
         [(["Yes", "No"], ["Yes", "No", "Okay"]), True],
         [(["CaseInsensitive", "other"], ["No", "Other"]), True],
@@ -201,9 +201,9 @@ def test_operation_all_in(operands, result):
         [([None, 0], ["Yes", "No"]), False],
     ],
 )
-def test_operation_any_in(operands, result):
+def test_operation_any_in(operands, expected_result):
     operator = Operator(Operator.ANY_IN)
-    assert operator.evaluate(operands) is result
+    assert operator.evaluate(operands) is expected_result
 
 
 @pytest.mark.parametrize(
@@ -229,7 +229,7 @@ def test_operation_date(date_string: str, offset):
     operator = Operator(Operator.DATE)
 
     offset = offset or {}
-    result = (
+    expected_result = (
         datetime_as_midnight(
             convert_to_datetime(date_string)
             + relativedelta(
@@ -242,7 +242,7 @@ def test_operation_date(date_string: str, offset):
         else None
     )
 
-    assert operator.evaluate(operands) == result
+    assert operator.evaluate(operands) == expected_result
 
 
 @pytest.mark.parametrize(

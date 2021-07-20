@@ -5,6 +5,7 @@ import pytest
 from freezegun import freeze_time
 
 from app.data_models import AnswerStore, ListStore
+from app.data_models.answer import Answer
 from app.questionnaire import Location, QuestionnaireSchema
 from app.questionnaire.routing.operator import Operator
 from app.questionnaire.routing.when_rule_evaluator import WhenRuleEvaluator
@@ -886,8 +887,6 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
 def test_answer_with_routing_path_block_ids(is_answer_on_path):
     schema = get_schema()
 
-    schema.answer_should_have_list_item_id = Mock(return_value=False)
-
     id_prefix = "some" if is_answer_on_path else "some-other"
     schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
 
@@ -904,4 +903,22 @@ def test_answer_with_routing_path_block_ids(is_answer_on_path):
     assert when_rule_evaluator.evaluate() is expected_result
 
 
-# :TODO: Test with non existent answer values but has default value
+@pytest.mark.parametrize(
+    "operator, first_argument, second_argument, answer_value, expected_result",
+    get_test_data_for_source(answer_source),
+)
+def test_default_value_used_when_no_answer(
+    operator, first_argument, second_argument, answer_value, expected_result
+):
+    schema = get_schema()
+    schema.get_default_answer = Mock(
+        return_value=Answer(answer_id="some-answer", value=answer_value)
+    )
+
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={operator: [first_argument, second_argument]},
+        schema=schema,
+        answer_store=AnswerStore([{"answer_id": f"some-other-answer", "value": "No"}]),
+    )
+
+    assert when_rule_evaluator.evaluate() is expected_result

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -7,6 +8,7 @@ from freezegun import freeze_time
 from app.data_models import AnswerStore, ListStore
 from app.data_models.answer import Answer
 from app.questionnaire import Location, QuestionnaireSchema
+from app.questionnaire.relationship_location import RelationshipLocation
 from app.questionnaire.routing.operator import Operator
 from app.questionnaire.routing.when_rule_evaluator import WhenRuleEvaluator
 
@@ -36,7 +38,7 @@ list_source_id_selector_same_name_items = {
 current_location_source = {"source": "location", "identifier": "list_item_id"}
 
 now = datetime.utcnow()
-formatted_now = now.strftime("%Y-%m-%d")
+now_as_yyyy_mm_dd = now.strftime("%Y-%m-%d")
 
 
 def get_list_items(num: int):
@@ -89,6 +91,9 @@ def get_test_data_for_source(source: dict):
 
 
 def get_test_data_with_string_values_for_source(source: dict):
+    """
+    operator, first_argument, second_argument, expected_result
+    """
     return [
         (Operator.EQUAL, source, "item-1", True),
         (Operator.EQUAL, "item-1", source, True),
@@ -105,12 +110,15 @@ def get_test_data_with_string_values_for_source(source: dict):
 
 
 def get_test_data_for_date_value_for_source(source):
+    """
+    rule, expected_result
+    """
     return [
         (
             {
                 Operator.EQUAL: [
                     {Operator.DATE: [source]},
-                    {Operator.DATE: [formatted_now]},
+                    {Operator.DATE: [now_as_yyyy_mm_dd]},
                 ]
             },
             True,
@@ -119,7 +127,7 @@ def get_test_data_for_date_value_for_source(source):
             {
                 Operator.NOT_EQUAL: [
                     {Operator.DATE: [source, {"days": -1}]},
-                    {Operator.DATE: [formatted_now]},
+                    {Operator.DATE: [now_as_yyyy_mm_dd]},
                 ]
             },
             True,
@@ -165,7 +173,7 @@ def get_test_data_for_date_value_for_source(source):
             {
                 Operator.EQUAL: [
                     {Operator.DATE: [source, {"days": -1}]},
-                    {Operator.DATE: [formatted_now]},
+                    {Operator.DATE: [now_as_yyyy_mm_dd]},
                 ]
             },
             False,
@@ -174,7 +182,7 @@ def get_test_data_for_date_value_for_source(source):
             {
                 Operator.NOT_EQUAL: [
                     {Operator.DATE: [source]},
-                    {Operator.DATE: [formatted_now]},
+                    {Operator.DATE: [now_as_yyyy_mm_dd]},
                 ]
             },
             False,
@@ -209,46 +217,8 @@ def get_test_data_for_date_value_for_source(source):
     ]
 
 
-def get_schema():
-    schema = Mock(
-        QuestionnaireSchema(
-            {
-                "questionnaire_flow": {
-                    "type": "Linear",
-                    "options": {"summary": {"collapsible": False}},
-                }
-            }
-        )
-    )
-    return schema
-
-
-def get_when_rule_evaluator(
-    rule,
-    schema=None,
-    metadata=None,
-    answer_store=AnswerStore(),
-    list_store=ListStore(),
-    location=Location(section_id="test-section", block_id="test-block"),
-    routing_path_block_ids=None,
-):
-    if not schema:
-        schema = get_schema()
-        schema.answer_should_have_list_item_id = Mock(return_value=True)
-        schema.get_default_answer = Mock(return_value=None)
-
-    return WhenRuleEvaluator(
-        rule=rule,
-        schema=schema,
-        metadata=metadata or {},
-        answer_store=answer_store,
-        list_store=list_store,
-        location=location,
-        routing_path_block_ids=routing_path_block_ids,
-    )
-
-
 test_data_mixed_value_sources = (
+    # operator, operands
     {Operator.EQUAL: [{"source": "answers", "identifier": "answer-1"}, "Yes, I do"]},
     {Operator.NOT_EQUAL: [{"source": "list", "identifier": "some-list"}, 0]},
     {
@@ -273,6 +243,47 @@ test_data_mixed_value_sources = (
     {Operator.EQUAL: [list_source_id_selector_first, current_location_source]},
     {Operator.ANY_IN: [list_source_id_selector_same_name_items, ["item-1"]]},
 )
+
+
+def get_mock_schema():
+    schema = Mock(
+        QuestionnaireSchema(
+            {
+                "questionnaire_flow": {
+                    "type": "Linear",
+                    "options": {"summary": {"collapsible": False}},
+                }
+            }
+        )
+    )
+    return schema
+
+
+def get_when_rule_evaluator(
+    rule: dict,
+    schema: QuestionnaireSchema = None,
+    answer_store: AnswerStore = AnswerStore(),
+    list_store: ListStore = ListStore(),
+    metadata: Optional[dict] = None,
+    location: Union[Location, RelationshipLocation] = Location(
+        section_id="test-section", block_id="test-block"
+    ),
+    routing_path_block_ids: Optional[list] = None,
+):
+    if not schema:
+        schema = get_mock_schema()
+        schema.answer_should_have_list_item_id = Mock(return_value=True)
+        schema.get_default_answer = Mock(return_value=None)
+
+    return WhenRuleEvaluator(
+        rule=rule,
+        schema=schema,
+        metadata=metadata or {},
+        answer_store=answer_store,
+        list_store=list_store,
+        location=location,
+        routing_path_block_ids=routing_path_block_ids,
+    )
 
 
 @pytest.mark.parametrize(
@@ -473,6 +484,43 @@ def test_list_source_with_id_selector_same_name_items(
                 }
             ]
         ),
+    )
+
+    assert when_rule_evaluator.evaluate() is expected_result
+
+
+@pytest.mark.parametrize(
+    "primary_person_list_item_id, expected_result",
+    [("item-1", True), ("item-2", False)],
+)
+def test_list_source_id_selector_primary_person(
+    primary_person_list_item_id, expected_result
+):
+    location = RelationshipLocation(
+        section_id="some-section",
+        block_id="some-block",
+        list_item_id="item-1",
+        to_list_item_id="item-2",
+        list_name="household",
+    )
+
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={
+            Operator.EQUAL: [
+                list_source_id_selector_primary_person,
+                current_location_source,
+            ]
+        },
+        list_store=ListStore(
+            [
+                {
+                    "name": "some-list",
+                    "primary_person": primary_person_list_item_id,
+                    "items": get_list_items(3),
+                }
+            ]
+        ),
+        location=location,
     )
 
     assert when_rule_evaluator.evaluate() is expected_result
@@ -836,11 +884,11 @@ def test_date_value(rule, expected_result):
             [
                 {
                     "answer_id": "some-answer",
-                    "value": formatted_now,
+                    "value": now_as_yyyy_mm_dd,
                 }
             ]
         ),
-        metadata={"some-metadata": formatted_now},
+        metadata={"some-metadata": now_as_yyyy_mm_dd},
     )
 
     assert when_rule_evaluator.evaluate() is expected_result
@@ -860,7 +908,7 @@ def test_date_value(rule, expected_result):
 def test_rule_uses_list_item_id_when_evaluating_answer_value(
     answer_should_have_list_item_id, list_item_id_for_answer, expected_result
 ):
-    schema = get_schema()
+    schema = get_mock_schema()
 
     # We are fetching an answer that is outside of a repeat or one not in a list collector.
     schema.answer_should_have_list_item_id = Mock(
@@ -890,7 +938,7 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
 @pytest.mark.parametrize("is_answer_on_path", [True, False])
 @pytest.mark.parametrize("is_inside_repeat", [True, False])
 def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat):
-    schema = get_schema()
+    schema = get_mock_schema()
 
     id_prefix = "some" if is_answer_on_path else "some-other"
     schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
@@ -921,7 +969,7 @@ def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat)
 def test_default_value_used_when_no_answer(
     operator, first_argument, second_argument, answer_value, expected_result
 ):
-    schema = get_schema()
+    schema = get_mock_schema()
     schema.get_default_answer = Mock(
         return_value=Answer(answer_id="some-answer", value=answer_value)
     )
@@ -936,7 +984,7 @@ def test_default_value_used_when_no_answer(
 
 
 def test_raises_exception_when_bad_operands():
-    with pytest.raises(TypeError) as ex:
+    with pytest.raises(TypeError):
         when_rule_evaluator = get_when_rule_evaluator(
             rule={Operator.EQUAL: {1, 1}},
             answer_store=AnswerStore(

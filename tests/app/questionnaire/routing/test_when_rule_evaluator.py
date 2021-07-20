@@ -192,6 +192,15 @@ def get_test_data_for_date_value_for_source(source):
             },
             False,
         ),
+        (
+            {
+                Operator.EQUAL: [
+                    {Operator.DATE: [source]},
+                    {Operator.DATE: [None]},
+                ]
+            },
+            False,
+        ),
     ]
 
 
@@ -221,6 +230,7 @@ def get_when_rule_evaluator(
     if not schema:
         schema = get_schema()
         schema.answer_should_have_list_item_id = Mock(return_value=True)
+        schema.get_default_answer = Mock(return_value=None)
 
     return WhenRuleEvaluator(
         rule=rule,
@@ -751,6 +761,54 @@ def test_nested_rules(operator, operands, result):
 
 
 @pytest.mark.parametrize(
+    "operands",
+    [
+        [None, 10],
+        [10, None],
+        [None, None],
+        # Value for value sources does not exist
+        [10, answer_source],
+        [10, metadata_source],
+    ],
+)
+@pytest.mark.parametrize(
+    "operator_name",
+    [
+        Operator.GREATER_THAN,
+        Operator.GREATER_THAN_OR_EQUAL,
+        Operator.LESS_THAN,
+        Operator.LESS_THAN_OR_EQUAL,
+    ],
+)
+def test_comparison_operator_rule_with_nonetype_operands(operator_name, operands):
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={operator_name: operands},
+    )
+    assert when_rule_evaluator.evaluate() is False
+
+
+@pytest.mark.parametrize(
+    "operands",
+    [
+        [None, ["Yes"]],
+        [["Yes"], None],
+        [None, None],
+        # Value for value sources does not exist
+        [["Yes"], answer_source],
+        [["Yes"], metadata_source],
+    ],
+)
+@pytest.mark.parametrize(
+    "operator_name", [Operator.ALL_IN, Operator.ANY_IN, Operator.IN]
+)
+def test_array_operator_rule_with_nonetype_operands(operator_name, operands):
+    when_rule_evaluator = get_when_rule_evaluator(
+        rule={operator_name: operands},
+    )
+    assert when_rule_evaluator.evaluate() is False
+
+
+@pytest.mark.parametrize(
     "rule, result",
     [
         *get_test_data_for_date_value_for_source(answer_source),
@@ -814,3 +872,7 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
     )
 
     assert when_rule_evaluator.evaluate() is result
+
+
+# :TODO: Test with answer values not on path
+# :TODO: Test with non existent answer values but has default value

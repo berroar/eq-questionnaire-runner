@@ -24,6 +24,10 @@ metadata_source = {"source": "metadata", "identifier": "some-metadata"}
 
 list_source = {"source": "list", "identifier": "some-list"}
 list_source_id_selector_first = {**list_source, "id_selector": "first"}
+list_source_id_selector_primary_person = {
+    **list_source,
+    "id_selector": "primary_person",
+}
 list_source_id_selector_same_name_items = {
     **list_source,
     "id_selector": "same_name_items",
@@ -884,18 +888,25 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
 
 
 @pytest.mark.parametrize("is_answer_on_path", [True, False])
-def test_answer_with_routing_path_block_ids(is_answer_on_path):
+@pytest.mark.parametrize("is_inside_repeat", [True, False])
+def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat):
     schema = get_schema()
 
     id_prefix = "some" if is_answer_on_path else "some-other"
     schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
 
+    location = Location(section_id="test-section", block_id="test-block")
+    answer = Answer(answer_id=f"{id_prefix}-answer", value="Yes")
+
+    if is_inside_repeat:
+        location.list_item_id = answer.list_item_id = "item-1"
+        schema.answer_should_have_list_item_id = Mock(return_value=True)
+
     when_rule_evaluator = get_when_rule_evaluator(
         rule={Operator.EQUAL: ["Yes", answer_source]},
         schema=schema,
-        answer_store=AnswerStore(
-            [{"answer_id": f"{id_prefix}-answer", "value": "Yes"}]
-        ),
+        answer_store=AnswerStore([answer.to_dict()]),
+        location=location,
         routing_path_block_ids=[f"{id_prefix}-block"],
     )
 
@@ -922,3 +933,15 @@ def test_default_value_used_when_no_answer(
     )
 
     assert when_rule_evaluator.evaluate() is expected_result
+
+
+def test_raises_exception_when_bad_operands():
+    with pytest.raises(TypeError) as ex:
+        when_rule_evaluator = get_when_rule_evaluator(
+            rule={Operator.EQUAL: {1, 1}},
+            answer_store=AnswerStore(
+                [{"answer_id": f"some-other-answer", "value": "No"}]
+            ),
+        )
+
+        when_rule_evaluator.evaluate()

@@ -866,6 +866,7 @@ def test_array_operator_rule_with_nonetype_operands(operator_name, operands):
     assert when_rule_evaluator.evaluate() is False
 
 
+@freeze_time(now)
 @pytest.mark.parametrize(
     "rule, expected_result",
     [
@@ -873,7 +874,6 @@ def test_array_operator_rule_with_nonetype_operands(operator_name, operands):
         *get_test_data_for_date_value_for_source(metadata_source),
     ],
 )
-@freeze_time(now)
 def test_date_value(rule, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
         rule=rule,
@@ -936,11 +936,10 @@ def test_rule_uses_list_item_id_when_evaluating_answer_value(
 @pytest.mark.parametrize("is_inside_repeat", [True, False])
 def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat):
     schema = get_mock_schema()
-
-    id_prefix = "some" if is_answer_on_path else "some-other"
-    schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
+    schema.get_block_for_answer_id = Mock(return_value={"id": f"some-block"})
 
     location = Location(section_id="test-section", block_id="test-block")
+    id_prefix = "some" if is_answer_on_path else "some-other"
     answer = Answer(answer_id=f"{id_prefix}-answer", value="Yes")
 
     if is_inside_repeat:

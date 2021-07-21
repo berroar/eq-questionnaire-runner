@@ -191,11 +191,10 @@ def test_answer_source_with_list_item_selector_list_first_item():
 @pytest.mark.parametrize("is_inside_repeat", [True, False])
 def test_answer_source_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat):
     schema = get_mock_schema()
-
-    id_prefix = "some" if is_answer_on_path else "some-other"
-    schema.get_block_for_answer_id = Mock(return_value={"id": f"{id_prefix}-block"})
+    schema.get_block_for_answer_id = Mock(return_value={"id": f"some-block"})
 
     location = Location(section_id="test-section", block_id="test-block")
+    id_prefix = "some" if is_answer_on_path else "some-other"
     answer = Answer(answer_id=f"{id_prefix}-answer", value="Yes")
 
     if is_inside_repeat:

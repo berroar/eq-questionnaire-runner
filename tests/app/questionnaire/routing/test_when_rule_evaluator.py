@@ -31,98 +31,98 @@ now_as_yyyy_mm_dd = now.strftime("%Y-%m-%d")
 
 def get_test_data_for_source(source: dict):
     """
-    operator, first_argument, second_argument, resolved_value, expected_result
+    operator, operands, resolved_value, expected_result
     """
     return [
-        (Operator.EQUAL, source, "Maybe", "Maybe", True),
-        (Operator.EQUAL, "Maybe", source, "Maybe", True),
-        (Operator.NOT_EQUAL, source, "Maybe", "Yes", True),
-        (Operator.NOT_EQUAL, "Maybe", source, "Yes", True),
-        (Operator.GREATER_THAN, 2, source, 1, True),
-        (Operator.GREATER_THAN, source, 1, 2, True),
-        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 1, True),
-        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 1, True),
-        (Operator.LESS_THAN, 1, source, 2, True),
-        (Operator.LESS_THAN, source, 2, 1, True),
-        (Operator.LESS_THAN_OR_EQUAL, 1, source, 1, True),
-        (Operator.LESS_THAN_OR_EQUAL, source, 1, 1, True),
-        (Operator.IN, source, ["Maybe"], "Maybe", True),
-        (Operator.IN, "Maybe", source, ["Maybe"], True),
-        (Operator.ANY_IN, source, ["Maybe"], ["Yes", "Maybe"], True),
-        (Operator.ANY_IN, ["Maybe"], source, ["Yes", "Maybe"], True),
-        (Operator.ALL_IN, source, ["Maybe"], ["Maybe"], True),
-        (Operator.ALL_IN, ["Maybe"], source, ["Maybe"], True),
+        (Operator.EQUAL, [source, "Maybe"], "Maybe", True),
+        (Operator.EQUAL, ["Maybe", source], "Maybe", True),
+        (Operator.NOT_EQUAL, [source, "Maybe"], "Yes", True),
+        (Operator.NOT_EQUAL, ["Maybe", source], "Yes", True),
+        (Operator.GREATER_THAN, [2, source], 1, True),
+        (Operator.GREATER_THAN, [source, 1], 2, True),
+        (Operator.GREATER_THAN_OR_EQUAL, [1, source], 1, True),
+        (Operator.GREATER_THAN_OR_EQUAL, [source, 1], 1, True),
+        (Operator.LESS_THAN, [1, source], 2, True),
+        (Operator.LESS_THAN, [source, 2], 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, [1, source], 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, [source, 1], 1, True),
+        (Operator.IN, [source, ["Maybe"]], "Maybe", True),
+        (Operator.IN, ["Maybe", source], ["Maybe"], True),
+        (Operator.ANY_IN, [source, ["Maybe"]], ["Yes", "Maybe"], True),
+        (Operator.ANY_IN, [["Maybe"], source], ["Yes", "Maybe"], True),
+        (Operator.ALL_IN, [source, ["Maybe"]], ["Maybe"], True),
+        (Operator.ALL_IN, [["Maybe"], source], ["Maybe"], True),
         # Test inverse
-        (Operator.EQUAL, source, "Maybe", "Yes", False),
-        (Operator.EQUAL, "Maybe", source, "Yes", False),
-        (Operator.NOT_EQUAL, source, "Maybe", "Maybe", False),
-        (Operator.NOT_EQUAL, "Maybe", source, "Maybe", False),
-        (Operator.GREATER_THAN, 1, source, 2, False),
-        (Operator.GREATER_THAN, source, 2, 1, False),
-        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 2, False),
-        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 0, False),
-        (Operator.LESS_THAN, 2, source, 1, False),
-        (Operator.LESS_THAN, source, 1, 2, False),
-        (Operator.LESS_THAN_OR_EQUAL, 1, source, 0, False),
-        (Operator.LESS_THAN_OR_EQUAL, source, 1, 2, False),
-        (Operator.IN, source, ["Maybe"], "Yes", False),
-        (Operator.IN, "Maybe", source, ["Yes"], False),
-        (Operator.ANY_IN, source, ["Maybe"], ["Yes", "No"], False),
-        (Operator.ANY_IN, ["Maybe"], source, ["Yes", "No"], False),
-        (Operator.ALL_IN, source, ["Maybe"], ["Yes", "No"], False),
-        (Operator.ALL_IN, ["Maybe"], source, ["Yes"], False),
+        (Operator.EQUAL, [source, "Maybe"], "Yes", False),
+        (Operator.EQUAL, ["Maybe", source], "Yes", False),
+        (Operator.NOT_EQUAL, [source, "Maybe"], "Maybe", False),
+        (Operator.NOT_EQUAL, ["Maybe", source], "Maybe", False),
+        (Operator.GREATER_THAN, [1, source], 2, False),
+        (Operator.GREATER_THAN, [source, 2], 1, False),
+        (Operator.GREATER_THAN_OR_EQUAL, [1, source], 2, False),
+        (Operator.GREATER_THAN_OR_EQUAL, [source, 1], 0, False),
+        (Operator.LESS_THAN, [2, source], 1, False),
+        (Operator.LESS_THAN, [source, 1], 2, False),
+        (Operator.LESS_THAN_OR_EQUAL, [1, source], 0, False),
+        (Operator.LESS_THAN_OR_EQUAL, [source, 1], 2, False),
+        (Operator.IN, [source, ["Maybe"]], "Yes", False),
+        (Operator.IN, ["Maybe", source], ["Yes"], False),
+        (Operator.ANY_IN, [source, ["Maybe"]], ["Yes", "No"], False),
+        (Operator.ANY_IN, [["Maybe"], source], ["Yes", "No"], False),
+        (Operator.ALL_IN, [source, ["Maybe"]], ["Yes", "No"], False),
+        (Operator.ALL_IN, [["Maybe"], source], ["Yes"], False),
     ]
 
 
 def get_test_data_with_string_values_for_source(source: dict):
     """
-    operator, first_argument, second_argument, expected_result
+    operator, operands, expected_result
     """
     return [
-        (Operator.EQUAL, source, "item-1", True),
-        (Operator.EQUAL, "item-1", source, True),
-        (Operator.NOT_EQUAL, source, "item-2", True),
-        (Operator.NOT_EQUAL, "item-2", source, True),
-        (Operator.IN, source, ["item-1"], True),
+        (Operator.EQUAL, [source, "item-1"], True),
+        (Operator.EQUAL, ["item-1", source], True),
+        (Operator.NOT_EQUAL, [source, "item-2"], True),
+        (Operator.NOT_EQUAL, ["item-2", source], True),
+        (Operator.IN, [source, ["item-1"]], True),
         # Test inverse
-        (Operator.EQUAL, source, "item-2", False),
-        (Operator.EQUAL, "item-2", source, False),
-        (Operator.NOT_EQUAL, source, "item-1", False),
-        (Operator.NOT_EQUAL, "item-1", source, False),
-        (Operator.IN, source, ["item-2"], False),
+        (Operator.EQUAL, [source, "item-2"], False),
+        (Operator.EQUAL, ["item-2", source], False),
+        (Operator.NOT_EQUAL, [source, "item-1"], False),
+        (Operator.NOT_EQUAL, ["item-1", source], False),
+        (Operator.IN, [source, ["item-2"]], False),
     ]
 
 
 def get_test_data_comparison_operators_numeric_value_for_source(source):
     """
-    operator, first_argument, second_argument, resolved_value, expected_result
+    operator, operands, resolved_value, expected_result
     """
     return [
-        (Operator.EQUAL, source, 1, 1, True),
-        (Operator.EQUAL, 1, source, 1, True),
-        (Operator.NOT_EQUAL, source, 1, 2, True),
-        (Operator.NOT_EQUAL, 1, source, 2, True),
-        (Operator.GREATER_THAN, 2, source, 1, True),
-        (Operator.GREATER_THAN, source, 1, 2, True),
-        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 1, True),
-        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 1, True),
-        (Operator.LESS_THAN, 1, source, 2, True),
-        (Operator.LESS_THAN, source, 2, 1, True),
-        (Operator.LESS_THAN_OR_EQUAL, 1, source, 1, True),
-        (Operator.LESS_THAN_OR_EQUAL, source, 1, 1, True),
+        (Operator.EQUAL, [source, 1], 1, True),
+        (Operator.EQUAL, [1, source], 1, True),
+        (Operator.NOT_EQUAL, [source, 1], 2, True),
+        (Operator.NOT_EQUAL, [1, source], 2, True),
+        (Operator.GREATER_THAN, [2, source], 1, True),
+        (Operator.GREATER_THAN, [source, 1], 2, True),
+        (Operator.GREATER_THAN_OR_EQUAL, [1, source], 1, True),
+        (Operator.GREATER_THAN_OR_EQUAL, [source, 1], 1, True),
+        (Operator.LESS_THAN, [1, source], 2, True),
+        (Operator.LESS_THAN, [source, 2], 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, [1, source], 1, True),
+        (Operator.LESS_THAN_OR_EQUAL, [source, 1], 1, True),
         # Test inverse
-        (Operator.EQUAL, source, 1, 2, False),
-        (Operator.EQUAL, 1, source, 2, False),
-        (Operator.NOT_EQUAL, source, 1, 1, False),
-        (Operator.NOT_EQUAL, 1, source, 1, False),
-        (Operator.GREATER_THAN, 1, source, 2, False),
-        (Operator.GREATER_THAN, source, 2, 1, False),
-        (Operator.GREATER_THAN_OR_EQUAL, 1, source, 2, False),
-        (Operator.GREATER_THAN_OR_EQUAL, source, 1, 0, False),
-        (Operator.LESS_THAN, 2, source, 1, False),
-        (Operator.LESS_THAN, source, 1, 2, False),
-        (Operator.LESS_THAN_OR_EQUAL, 1, source, 0, False),
-        (Operator.LESS_THAN_OR_EQUAL, source, 1, 2, False),
+        (Operator.EQUAL, [source, 1], 2, False),
+        (Operator.EQUAL, [1, source], 2, False),
+        (Operator.NOT_EQUAL, [source, 1], 1, False),
+        (Operator.NOT_EQUAL, [1, source], 1, False),
+        (Operator.GREATER_THAN, [1, source], 2, False),
+        (Operator.GREATER_THAN, [source, 2], 1, False),
+        (Operator.GREATER_THAN_OR_EQUAL, [1, source], 2, False),
+        (Operator.GREATER_THAN_OR_EQUAL, [source, 1], 0, False),
+        (Operator.LESS_THAN, [2, source], 1, False),
+        (Operator.LESS_THAN, [source, 1], 2, False),
+        (Operator.LESS_THAN_OR_EQUAL, [1, source], 0, False),
+        (Operator.LESS_THAN_OR_EQUAL, [source, 1], 2, False),
     ]
 
 
@@ -304,14 +304,12 @@ def get_when_rule_evaluator(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
-def test_answer_source(
-    operator, first_argument, second_argument, answer_value, expected_result
-):
+def test_answer_source(operator, operands, answer_value, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
@@ -319,14 +317,14 @@ def test_answer_source(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_for_source(answer_source_list_item_selector_location),
 )
 def test_answer_source_with_list_item_selector_location(
-    operator, first_argument, second_argument, answer_value, expected_result
+    operator, operands, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         answer_store=AnswerStore(
             [
                 {
@@ -345,14 +343,14 @@ def test_answer_source_with_list_item_selector_location(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_for_source(answer_source_list_item_selector_list_first_item),
 )
 def test_answer_source_with_list_item_selector_list_first_item(
-    operator, first_argument, second_argument, answer_value, expected_result
+    operator, operands, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         answer_store=AnswerStore(
             [
                 {
@@ -369,16 +367,16 @@ def test_answer_source_with_list_item_selector_list_first_item(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_comparison_operators_numeric_value_for_source(
         answer_source_dict_answer_selector
     ),
 )
 def test_answer_source_with_dict_answer_selector(
-    operator, first_argument, second_argument, answer_value, expected_result
+    operator, operands, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         answer_store=AnswerStore(
             [
                 {
@@ -393,14 +391,12 @@ def test_answer_source_with_dict_answer_selector(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, metadata_value, expected_result",
+    "operator, operands, metadata_value, expected_result",
     get_test_data_for_source(metadata_source),
 )
-def test_metadata_source(
-    operator, first_argument, second_argument, metadata_value, expected_result
-):
+def test_metadata_source(operator, operands, metadata_value, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         metadata={"some-metadata": metadata_value},
     )
 
@@ -408,14 +404,12 @@ def test_metadata_source(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, list_count, expected_result",
+    "operator, operands, list_count, expected_result",
     get_test_data_comparison_operators_numeric_value_for_source(list_source),
 )
-def test_list_source(
-    operator, first_argument, second_argument, list_count, expected_result
-):
+def test_list_source(operator, operands, list_count, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         list_store=ListStore(
             [{"name": "some-list", "items": get_list_items(list_count)}]
         ),
@@ -425,14 +419,12 @@ def test_list_source(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, expected_result",
+    "operator, operands, expected_result",
     get_test_data_with_string_values_for_source(list_source_id_selector_first),
 )
-def test_list_source_with_id_selector_first(
-    operator, first_argument, second_argument, expected_result
-):
+def test_list_source_with_id_selector_first(operator, operands, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         list_store=ListStore([{"name": "some-list", "items": get_list_items(1)}]),
     )
 
@@ -440,56 +432,50 @@ def test_list_source_with_id_selector_first(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, expected_result",
+    "operator, operands, expected_result",
     [
-        (Operator.IN, "item-2", list_source_id_selector_same_name_items, True),
+        (Operator.IN, ["item-2", list_source_id_selector_same_name_items], True),
         (
             Operator.ANY_IN,
-            list_source_id_selector_same_name_items,
-            ["item-3", "item-5"],
+            [list_source_id_selector_same_name_items, ["item-3", "item-5"]],
             True,
         ),
-        (Operator.ANY_IN, ["item-1"], list_source_id_selector_same_name_items, True),
+        (Operator.ANY_IN, [["item-1"], list_source_id_selector_same_name_items], True),
         (
             Operator.ALL_IN,
-            list_source_id_selector_same_name_items,
-            ["item-1", "item-2", "item-3"],
+            [list_source_id_selector_same_name_items, ["item-1", "item-2", "item-3"]],
             True,
         ),
         (
             Operator.ALL_IN,
-            ["item-1", "item-2", "item-3"],
-            list_source_id_selector_same_name_items,
+            [["item-1", "item-2", "item-3"], list_source_id_selector_same_name_items],
             True,
         ),
         # Test inverse
-        (Operator.IN, "item-5", list_source_id_selector_same_name_items, False),
+        (Operator.IN, ["item-5", list_source_id_selector_same_name_items], False),
         (
             Operator.ANY_IN,
-            list_source_id_selector_same_name_items,
-            ["item-4", "item-5"],
+            [list_source_id_selector_same_name_items, ["item-4", "item-5"]],
             False,
         ),
-        (Operator.ANY_IN, ["item-5"], list_source_id_selector_same_name_items, False),
+        (Operator.ANY_IN, [["item-5"], list_source_id_selector_same_name_items], False),
         (
             Operator.ALL_IN,
-            list_source_id_selector_same_name_items,
-            ["item-1", "item-2", "item-5"],
+            [list_source_id_selector_same_name_items, ["item-1", "item-2", "item-5"]],
             False,
         ),
         (
             Operator.ALL_IN,
-            ["item-1", "item-2", "item-5"],
-            list_source_id_selector_same_name_items,
+            [["item-1", "item-2", "item-5"], list_source_id_selector_same_name_items],
             False,
         ),
     ],
 )
 def test_list_source_with_id_selector_same_name_items(
-    operator, first_argument, second_argument, expected_result
+    operator, operands, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         list_store=ListStore(
             [
                 {
@@ -542,14 +528,12 @@ def test_list_source_id_selector_primary_person(
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, expected_result",
+    "operator, operands, expected_result",
     get_test_data_with_string_values_for_source(location_source),
 )
-def test_current_location_source(
-    operator, first_argument, second_argument, expected_result
-):
+def test_current_location_source(operator, operands, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         location=Location(
             section_id="some-section", block_id="some-block", list_item_id="item-1"
         ),
@@ -689,14 +673,12 @@ def test_logic_and_or(operator, operands, expected_result):
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
-def test_logic_not(
-    operator, first_argument, second_argument, answer_value, expected_result
-):
+def test_logic_not(operator, operands, answer_value, expected_result):
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={Operator.NOT: [{operator: [first_argument, second_argument]}]},
+        rule={Operator.NOT: [{operator: operands}]},
         answer_store=AnswerStore([{"answer_id": "some-answer", "value": answer_value}]),
     )
 
@@ -980,11 +962,11 @@ def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat)
 
 
 @pytest.mark.parametrize(
-    "operator, first_argument, second_argument, answer_value, expected_result",
+    "operator, operands, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
 def test_answer_source_default_answer_used_when_no_answer(
-    operator, first_argument, second_argument, answer_value, expected_result
+    operator, operands, answer_value, expected_result
 ):
     schema = get_mock_schema()
     schema.get_default_answer = Mock(
@@ -992,7 +974,7 @@ def test_answer_source_default_answer_used_when_no_answer(
     )
 
     when_rule_evaluator = get_when_rule_evaluator(
-        rule={operator: [first_argument, second_argument]},
+        rule={operator: operands},
         schema=schema,
         answer_store=AnswerStore([{"answer_id": f"some-other-answer", "value": "No"}]),
     )

@@ -19,7 +19,7 @@ class ValueSourceResolver:
     location: Union[Location, RelationshipLocation]
     list_item_id: Optional[str]
     routing_path_block_ids: Optional[list] = None
-    use_default_value: bool = False
+    use_default_answer: bool = False
 
     def _get_list_item_id_from_value_source(self, value_source: dict) -> Optional[str]:
         if not (list_item_selector := value_source.get("list_item_selector")):
@@ -53,7 +53,7 @@ class ValueSourceResolver:
         if answer := self.answer_store.get_answer(answer_id, list_item_id):
             return answer.value
 
-        if self.use_default_value and (
+        if self.use_default_answer and (
             answer := self.schema.get_default_answer(answer_id)
         ):
             return answer.value
@@ -103,15 +103,18 @@ class ValueSourceResolver:
         if source == "metadata":
             return self.metadata.get(identifier)
         if source == "list":
-            id_selector = value_source.get("id_selector")
             list_model: ListModel = self.list_store[identifier]
 
-            if id_selector:
+            if id_selector := value_source.get("id_selector"):
                 value: Union[str, list] = getattr(list_model, id_selector)
                 return value
 
             return len(list_model)
+
         if source == "location" and identifier == "list_item_id":
+            # :TODO: Resolve value from location object to be consistent with location id_selector in answer sources.
+            # This has been kept as is to keep placeholder parser functioning.
+            # This is a side-effect of not having a location object for routes such as individual response.
             return self.list_item_id
 
     def resolve(self, value_source: Union[list, dict]) -> value_source_types:

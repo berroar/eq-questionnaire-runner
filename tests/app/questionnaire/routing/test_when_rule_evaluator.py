@@ -14,14 +14,14 @@ from app.questionnaire.routing.when_rule_evaluator import WhenRuleEvaluator
 from tests.app.questionnaire.test_value_source_resolver import (
     answer_source,
     answer_source_dict_answer_selector,
-    answer_source_list_item_selector_list,
+    answer_source_list_item_selector_list_first_item,
     answer_source_list_item_selector_location,
-    current_location_source,
     get_list_items,
     list_source,
     list_source_id_selector_first,
     list_source_id_selector_primary_person,
     list_source_id_selector_same_name_items,
+    location_source,
     metadata_source,
 )
 
@@ -257,7 +257,7 @@ test_data_mixed_value_sources = (
             ["GB-ENG", "GB-WLS"],
         ]
     },
-    {Operator.EQUAL: [list_source_id_selector_first, current_location_source]},
+    {Operator.EQUAL: [list_source_id_selector_first, location_source]},
     {Operator.ANY_IN: [list_source_id_selector_same_name_items, ["item-1"]]},
 )
 
@@ -346,9 +346,9 @@ def test_answer_source_with_list_item_selector_location(
 
 @pytest.mark.parametrize(
     "operator, first_argument, second_argument, answer_value, expected_result",
-    get_test_data_for_source(answer_source_list_item_selector_list),
+    get_test_data_for_source(answer_source_list_item_selector_list_first_item),
 )
-def test_answer_source_with_list_item_selector_list(
+def test_answer_source_with_list_item_selector_list_first_item(
     operator, first_argument, second_argument, answer_value, expected_result
 ):
     when_rule_evaluator = get_when_rule_evaluator(
@@ -523,7 +523,7 @@ def test_list_source_id_selector_primary_person(
         rule={
             Operator.EQUAL: [
                 list_source_id_selector_primary_person,
-                current_location_source,
+                location_source,
             ]
         },
         list_store=ListStore(
@@ -543,7 +543,7 @@ def test_list_source_id_selector_primary_person(
 
 @pytest.mark.parametrize(
     "operator, first_argument, second_argument, expected_result",
-    get_test_data_with_string_values_for_source(current_location_source),
+    get_test_data_with_string_values_for_source(location_source),
 )
 def test_current_location_source(
     operator, first_argument, second_argument, expected_result
@@ -639,7 +639,7 @@ def test_current_location_source(
                 {
                     Operator.NOT_EQUAL: [
                         list_source_id_selector_first,
-                        current_location_source,
+                        location_source,
                     ]
                 },
                 {
@@ -964,6 +964,8 @@ def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat)
     if is_inside_repeat:
         location.list_item_id = answer.list_item_id = "item-1"
         schema.answer_should_have_list_item_id = Mock(return_value=True)
+    else:
+        schema.answer_should_have_list_item_id = Mock(return_value=False)
 
     when_rule_evaluator = get_when_rule_evaluator(
         rule={Operator.EQUAL: ["Yes", answer_source]},
@@ -981,7 +983,7 @@ def test_answer_with_routing_path_block_ids(is_answer_on_path, is_inside_repeat)
     "operator, first_argument, second_argument, answer_value, expected_result",
     get_test_data_for_source(answer_source),
 )
-def test_default_value_used_when_no_answer(
+def test_answer_source_default_answer_used_when_no_answer(
     operator, first_argument, second_argument, answer_value, expected_result
 ):
     schema = get_mock_schema()

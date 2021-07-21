@@ -31,7 +31,7 @@ class WhenRuleEvaluator:
             location=self.location,
             list_item_id=self.location.list_item_id,
             routing_path_block_ids=self.routing_path_block_ids,
-            use_default_value=True,
+            use_default_answer=True,
         )
 
     @staticmethod

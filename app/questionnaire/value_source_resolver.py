@@ -22,16 +22,18 @@ class ValueSourceResolver:
     use_default_value: bool = False
 
     def _get_list_item_id_from_value_source(self, value_source: dict) -> Optional[str]:
-        list_item_selector = value_source.get("list_item_selector")
+        if not (list_item_selector := value_source.get("list_item_selector")):
+            return None
+
         value: Optional[str] = None
-        if list_item_selector:
-            if list_item_selector["source"] == "location":
-                value = getattr(self.location, list_item_selector["id"])
-            elif list_item_selector["source"] == "list":
-                value = getattr(
-                    self.list_store[list_item_selector["id"]],
-                    list_item_selector["id_selector"],
-                )
+        if list_item_selector["source"] == "location":
+            value = getattr(self.location, list_item_selector["id"])
+
+        elif list_item_selector["source"] == "list":
+            value = getattr(
+                self.list_store[list_item_selector["id"]],
+                list_item_selector["id_selector"],
+            )
 
         return value
 
@@ -93,23 +95,23 @@ class ValueSourceResolver:
         return values
 
     def _resolve(self, value_source: dict) -> value_source_types:
-        if value_source["source"] == "answers":
+        source = value_source["source"]
+        identifier = value_source.get("identifier")
+
+        if source == "answers":
             return self._resolve_answer_value(value_source)
-        if value_source["source"] == "metadata":
-            return self.metadata.get(value_source["identifier"])
-        if value_source["source"] == "list":
+        if source == "metadata":
+            return self.metadata.get(identifier)
+        if source == "list":
             id_selector = value_source.get("id_selector")
-            list_model: ListModel = self.list_store[value_source["identifier"]]
+            list_model: ListModel = self.list_store[identifier]
 
             if id_selector:
                 value: Union[str, list] = getattr(list_model, id_selector)
                 return value
 
             return len(list_model)
-        if (
-            value_source["source"] == "location"
-            and value_source["identifier"] == "list_item_id"
-        ):
+        if source == "location" and identifier == "list_item_id":
             return self.list_item_id
 
     def resolve(self, value_source: Union[list, dict]) -> value_source_types:

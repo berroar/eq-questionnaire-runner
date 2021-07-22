@@ -874,7 +874,8 @@ def test_array_operator_rule_with_nonetype_operands(operator_name, operands):
         *get_test_data_for_date_value_for_source(metadata_source),
     ],
 )
-def test_date_value(rule, expected_result):
+def test_date_value(worker_id, rule, expected_result):
+    print("Worker ID", worker_id, "Now", now, "Rule", rule, "Expected Result", expected_result)
     when_rule_evaluator = get_when_rule_evaluator(
         rule=rule,
         answer_store=AnswerStore(

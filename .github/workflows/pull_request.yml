@@ -56,4 +56,4 @@ jobs:
       - name: Link env vars
         run: ln -sf .development.env .env
       - name: Running unit tests
-        run: pipenv run pytest -v -s tests/app/questionnaire/routing/test_when_rule_evaluator.py
+        run: pipenv run ./scripts/run_tests_unit.sh

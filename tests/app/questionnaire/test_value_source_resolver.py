@@ -245,8 +245,8 @@ def test_metadata_source(metadata_identifier, expected_result):
         metadata={"region_code": "GB-ENG"},
     )
 
-    metadata_source["identifier"] = metadata_identifier
-    assert value_source_resolver.resolve(metadata_source) == expected_result
+    source = {"source": "metadata", "identifier": metadata_identifier}
+    assert value_source_resolver.resolve(source) == expected_result
 
 
 @pytest.mark.parametrize(

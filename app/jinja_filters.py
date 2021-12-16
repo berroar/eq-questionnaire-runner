@@ -255,8 +255,12 @@ class CheckboxConfig:
         self.checked = option.checked
 
         label_description = None
-        answer_option = answer["options"][index]
 
+        if index > len(answer["options"]) - 1:
+            self.label = LabelConfig(option.id, option.label.text, label_description)
+            return
+
+        answer_option = answer["options"][index]
         if answer_option and "description" in answer_option:
             label_description = answer_option["description"]
 
@@ -277,6 +281,10 @@ class RadioConfig:
         self.checked = option.checked
 
         label_description = None
+        if index > len(answer["options"]) - 1:
+            self.label = LabelConfig(option.id, option.label.text, label_description)
+            return
+
         answer_option = answer["options"][index]
 
         if answer_option and "description" in answer_option:
@@ -385,7 +393,7 @@ def map_relationships_config_processor():
 
 class SelectOptionConfig:
     def __init__(self, option, select):
-        self.value, self.text = option
+        self.value, self.text = option.value, option.label
         self.selected = select.data == self.value
         self.disabled = self.value == "" and select.flags.required
 

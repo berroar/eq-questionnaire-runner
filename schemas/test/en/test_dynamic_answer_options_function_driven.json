@@ -1,0 +1,141 @@
+{
+    "mime_type": "application/json/ons/eq",
+    "language": "en",
+    "schema_version": "0.0.1",
+    "data_version": "0.0.3",
+    "survey_id": "0",
+    "title": "Test dynamic answer option driven by the map operator",
+    "theme": "default",
+    "description": "A questionnaire to demo dynamic answer options driven by the map operator with no additional options",
+    "metadata": [
+        {
+            "name": "user_id",
+            "type": "string"
+        },
+        {
+            "name": "period_id",
+            "type": "string"
+        },
+        {
+            "name": "ru_name",
+            "type": "string"
+        }
+    ],
+    "questionnaire_flow": {
+        "type": "Linear",
+        "options": {
+            "summary": {
+                "collapsible": false
+            }
+        }
+    },
+    "sections": [
+        {
+            "id": "default-section",
+            "groups": [
+                {
+                    "blocks": [
+                        {
+                            "type": "Question",
+                            "id": "dynamic-checkbox",
+                            "question": {
+                                "id": "dynamic-checkbox-question",
+                                "title": "Which dates did you work last week?",
+                                "type": "General",
+                                "answers": [
+                                    {
+                                        "id": "dynamic-checkbox-answer",
+                                        "mandatory": true,
+                                        "type": "Checkbox",
+                                        "dynamic_options": {
+                                            "values": {
+                                                "map": [
+                                                    {
+                                                        "format-date": ["self", "yyyy-MM-dd"]
+                                                    },
+                                                    {
+                                                        "date-range": [
+                                                            {
+                                                                "date": [
+                                                                    "now",
+                                                                    {
+                                                                        "days": -7,
+                                                                        "day_of_week": "MONDAY"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            7
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "transform": {
+                                                "format-date": [
+                                                    {
+                                                        "date": ["self"]
+                                                    },
+                                                    "EEEE d MMMM yyyy"
+                                                ]
+                                            }
+                                        },
+                                        "options": [
+                                            {
+                                                "label": "I did not work",
+                                                "value": "I did not work"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Question",
+                            "id": "dynamic-radio",
+                            "question": {
+                                "id": "dynamic-radio-question",
+                                "title": "Which date did you work the most last week?",
+                                "type": "General",
+                                "answers": [
+                                    {
+                                        "id": "dynamic-radio-answer",
+                                        "mandatory": true,
+                                        "type": "Radio",
+                                        "options": [
+                                            {
+                                                "label": "I did not work",
+                                                "value": "I did not work"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Question",
+                            "id": "dynamic-dropdown",
+                            "question": {
+                                "id": "dynamic-dropdown-question",
+                                "title": "Which date did you work the least last week?",
+                                "type": "General",
+                                "answers": [
+                                    {
+                                        "id": "dynamic-dropdown-answer",
+                                        "mandatory": true,
+                                        "type": "Dropdown",
+                                        "options": [
+                                            {
+                                                "label": "I did not work",
+                                                "value": "I did not work"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "id": "group-1"
+                }
+            ]
+        }
+    ]
+}

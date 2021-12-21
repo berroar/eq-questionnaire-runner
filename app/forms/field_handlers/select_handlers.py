@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Optional
+from dataclasses import dataclass
+from typing import Any, Mapping, Optional, Sequence, Union
 
 from app.forms.field_handlers.field_handler import FieldHandler
 from app.forms.fields import (
@@ -7,25 +8,28 @@ from app.forms.fields import (
     SelectFieldWithDetailAnswer,
 )
 from app.questionnaire.rules.operator import Operator
+from app.questionnaire.rules.rule_evaluator import RuleEvaluator
 
-Choice = namedtuple("Choice", "value, label detail_answer_id")
+Choice = namedtuple("Choice", "value label")
+ChoiceWithDetailAnswer = namedtuple(
+    "ChoiceWithDetailAnswer", "value label detail_answer_id"
+)
+
+ChoiceType = Union[Choice, ChoiceWithDetailAnswer]
 
 
-class SelectHandlerBase(FieldHandler):
-    @property
-    def choices(self) -> list[Choice]:
-        return self._build_dynamic_choices() + self._build_static_choices()
+@dataclass
+class DynamicOptions:
+    dynamic_options_schema: Mapping[str, Any]
+    rule_evaluator: RuleEvaluator
 
-    @property
-    def dynamic_options_schema(self):
-        return self.answer_schema.get("dynamic_options", {})
-
-    def _build_dynamic_choices(self) -> list[Choice]:
-        choices = []
-        if self.dynamic_options_schema:
-            resolved_values = self.rule_evaluator.evaluate(
-                self.dynamic_options_schema["values"]
-            )
+    def evaluate(self) -> tuple[dict[str, str], ...]:
+        values = self.dynamic_options_schema["values"]
+        if "source" in values:  # pylint: disable=no-else-raise
+            # :TODO: Implement value sources support
+            raise NotImplementedError
+        else:
+            resolved_values = self.rule_evaluator.evaluate(values)
             resolved_labels = self.rule_evaluator.evaluate(
                 {
                     Operator.MAP: [
@@ -34,19 +38,48 @@ class SelectHandlerBase(FieldHandler):
                     ]
                 }
             )
-            for value, label in zip(resolved_values, resolved_labels):
-                choices.append(Choice(value, label, None))
+
+        return tuple(
+            {"label": label, "value": value}  # type: ignore
+            for label, value in zip(resolved_labels, resolved_values)  # type: ignore
+        )
+
+
+class SelectHandlerBase(FieldHandler):
+    @property
+    def choices(self) -> Sequence[ChoiceType]:
+        return self._build_dynamic_choices() + self._build_static_choices()
+
+    @property
+    def dynamic_options_schema(self) -> dict[str, Any]:
+        return self.answer_schema.get("dynamic_options", {})
+
+    def _build_dynamic_choices(self) -> list[ChoiceWithDetailAnswer]:
+        if not self.dynamic_options_schema:
+            return []
+
+        dynamic_options = DynamicOptions(
+            dynamic_options_schema=self.dynamic_options_schema,
+            rule_evaluator=self.rule_evaluator,
+        )
+
+        choices = [
+            ChoiceWithDetailAnswer(option["value"], option["label"], None)
+            for option in dynamic_options.evaluate()
+        ]
 
         return choices
 
-    def _build_static_choices(self) -> list[Choice]:
+    def _build_static_choices(self) -> list[ChoiceWithDetailAnswer]:
         choices = []
 
         for option in self.answer_schema.get("options", []):
-            detail_answer_id = (
-                option["detail_answer"]["id"] if option.get("detail_answer") else None
+            detail_answer_id = option.get("detail_answer", {}).get("id")
+            choices.append(
+                ChoiceWithDetailAnswer(
+                    option["value"], option["label"], detail_answer_id
+                )
             )
-            choices.append(Choice(option["value"], option["label"], detail_answer_id))
         return choices
 
 

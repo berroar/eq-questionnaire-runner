@@ -1,5 +1,6 @@
 from flask import url_for
 
+from app.questionnaire.rules.rule_evaluator import RuleEvaluator
 from app.questionnaire.when_rules import evaluate_when_rules
 from app.views.contexts.summary.question import Question
 
@@ -8,9 +9,11 @@ class Block:
     def __init__(
         self,
         block_schema,
+        *,
         answer_store,
         list_store,
         metadata,
+        response_metadata,
         schema,
         location,
         return_to,
@@ -20,8 +23,15 @@ class Block:
         self.title = block_schema.get("title")
         self.number = block_schema.get("number")
         self.link = self._build_link(block_schema["id"], return_to)
+
         self.question = self.get_question(
-            block_schema, answer_store, list_store, metadata, schema, location
+            block_schema=block_schema,
+            answer_store=answer_store,
+            list_store=list_store,
+            metadata=metadata,
+            response_metadata=response_metadata,
+            schema=schema,
+            location=location,
         )
 
     def _build_link(self, block_id, return_to):
@@ -35,10 +45,26 @@ class Block:
 
     @staticmethod
     def get_question(
-        block_schema, answer_store, list_store, metadata, schema, location
+        *,
+        block_schema,
+        answer_store,
+        list_store,
+        metadata,
+        response_metadata,
+        schema,
+        location,
     ):
         """ Taking question variants into account, return the question which was displayed to the user """
         list_item_id = location.list_item_id
+        rule_evaluator = RuleEvaluator(
+            schema=schema,
+            answer_store=answer_store,
+            list_store=list_store,
+            metadata=metadata,
+            response_metadata=response_metadata,
+            location=location,
+        )
+
         for variant in block_schema.get("question_variants", []):
             display_variant = evaluate_when_rules(
                 variant.get("when"),
@@ -50,11 +76,19 @@ class Block:
             )
             if display_variant:
                 return Question(
-                    variant["question"], answer_store, schema, list_item_id
+                    variant["question"],
+                    answer_store=answer_store,
+                    schema=schema,
+                    list_item_id=list_item_id,
+                    rule_evaluator=rule_evaluator,
                 ).serialize()
 
         return Question(
-            block_schema["question"], answer_store, schema, list_item_id
+            block_schema["question"],
+            answer_store=answer_store,
+            schema=schema,
+            list_item_id=list_item_id,
+            rule_evaluator=rule_evaluator,
         ).serialize()
 
     def serialize(self):

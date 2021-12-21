@@ -256,7 +256,7 @@ class CheckboxConfig:
 
         label_description = None
 
-        if index > len(answer["options"]) - 1:
+        if index > len(answer.get("options", [])) - 1:
             self.label = LabelConfig(option.id, option.label.text, label_description)
             return
 
@@ -281,7 +281,7 @@ class RadioConfig:
         self.checked = option.checked
 
         label_description = None
-        if index > len(answer["options"]) - 1:
+        if index > len(answer.get("options", [])) - 1:
             self.label = LabelConfig(option.id, option.label.text, label_description)
             return
 

@@ -297,7 +297,18 @@ class QuestionnaireForm(FlaskForm):
             escape_answer_values=False,
         )
 
-        handler = DateHandler(date_from, value_source_resolver, error_messages)
+        rule_evaluator = RuleEvaluator(
+            schema=self.schema,
+            answer_store=self.answer_store,
+            list_store=self.list_store,
+            metadata=self.metadata,
+            response_metadata=self.response_metadata,
+            location=self.location,
+        )
+
+        handler = DateHandler(
+            date_from, value_source_resolver, rule_evaluator, error_messages
+        )
 
         min_period_date = handler.get_date_value("minimum") or handler.get_date_value(
             "maximum"

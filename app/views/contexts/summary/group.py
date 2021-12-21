@@ -20,14 +20,15 @@ class Group:
         self.title = group_schema.get("title")
         self.location = location
         self.blocks = self._build_blocks(
-            group_schema,
-            routing_path,
-            answer_store,
-            list_store,
-            metadata,
-            schema,
-            location,
-            return_to,
+            group_schema=group_schema,
+            routing_path=routing_path,
+            answer_store=answer_store,
+            list_store=list_store,
+            metadata=metadata,
+            response_metadata=response_metadata,
+            schema=schema,
+            location=location,
+            return_to=return_to,
         )
         self.placeholder_renderer = PlaceholderRenderer(
             language=language,
@@ -40,11 +41,13 @@ class Group:
 
     @staticmethod
     def _build_blocks(
+        *,
         group_schema,
         routing_path,
         answer_store,
         list_store,
         metadata,
+        response_metadata,
         schema,
         location,
         return_to,
@@ -57,12 +60,13 @@ class Group:
                     [
                         Block(
                             block,
-                            answer_store,
-                            list_store,
-                            metadata,
-                            schema,
-                            location,
-                            return_to,
+                            answer_store=answer_store,
+                            list_store=list_store,
+                            metadata=metadata,
+                            response_metadata=response_metadata,
+                            schema=schema,
+                            location=location,
+                            return_to=return_to,
                         ).serialize()
                     ]
                 )

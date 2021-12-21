@@ -374,7 +374,7 @@ def map_dropdown_config(select):
 
 @blueprint.app_context_processor
 def map_dropdown_config_processor():
-    return dict(map_select_config=map_dropdown_config)
+    return dict(map_dropdown_config=map_dropdown_config)
 
 
 class SummaryAction:

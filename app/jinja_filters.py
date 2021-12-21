@@ -247,74 +247,37 @@ class LabelConfig:
         self.description = description
 
 
-class CheckboxConfig:
-    def __init__(self, option, index, form, answer):
+class SelectConfig:
+    def __init__(self, option, index, answer, form=None):
         self.id = option.id
         self.name = option.name
         self.value = option.data
         self.checked = option.checked
 
         label_description = None
+        self._answer_option = None
 
-        if index > len(answer.get("options", [])) - 1:
-            self.label = LabelConfig(option.id, option.label.text, label_description)
-            return
-
-        answer_option = answer["options"][index]
-        if answer_option and "description" in answer_option:
-            label_description = answer_option["description"]
+        try:
+            self._answer_option = answer.get("options", [])[index]
+            if "description" in self._answer_option:
+                label_description = self._answer_option["description"]
+        except IndexError:
+            pass
 
         self.label = LabelConfig(option.id, option.label.text, label_description)
 
-        if option.detail_answer_id:
+        if self._answer_option and form and option.detail_answer_id:
             detail_answer_field = form["fields"][option.detail_answer_id]
-            detail_answer_schema = answer_option["detail_answer"]
+            detail_answer_schema = self._answer_option["detail_answer"]
 
             self.other = OtherConfig(detail_answer_field, detail_answer_schema)
 
 
-class RadioConfig:
-    def __init__(self, option, index, form, answer):
-        self.id = option.id
-        self.name = option.name
-        self.value = option.data
-        self.checked = option.checked
-
-        label_description = None
-        if index > len(answer.get("options", [])) - 1:
-            self.label = LabelConfig(option.id, option.label.text, label_description)
-            return
-
-        answer_option = answer["options"][index]
-
-        if answer_option and "description" in answer_option:
-            label_description = answer_option["description"]
-
-        self.label = LabelConfig(option.id, option.label.text, label_description)
-
-        if option.detail_answer_id:
-            detail_answer_field = form["fields"][option.detail_answer_id]
-            detail_answer_schema = answer_option["detail_answer"]
-
-            self.other = OtherConfig(detail_answer_field, detail_answer_schema)
-
-
-class RelationshipRadioConfig:
+class RelationshipRadioConfig(SelectConfig):
     def __init__(self, option, index, answer):
-        self.id = option.id
-        self.name = option.name
-        self.value = option.data
-        self.checked = option.checked
+        super().__init__(option, index, answer)
 
-        label_description = None
-        answer_option = answer["options"][index]
-
-        if answer_option and "description" in answer_option:
-            label_description = answer_option["description"]
-
-        self.label = LabelConfig(option.id, option.label.text, label_description)
-
-        if answer_option:
+        if self._answer_option:
             # the 'pre-' prefix is added to the attributes here so that html minification
             # doesn't mess with the attribute contents (the 'pre-' is removed during minification).
             # see https://htmlmin.readthedocs.io/en/latest/quickstart.html
@@ -323,8 +286,10 @@ class RelationshipRadioConfig:
             )
 
             self.attributes = {
-                f"{attribute_key}data-title": escape(answer_option["title"]),
-                f"{attribute_key}data-playback": escape(answer_option["playback"]),
+                f"{attribute_key}data-title": escape(self._answer_option["title"]),
+                f"{attribute_key}data-playback": escape(
+                    self._answer_option["playback"]
+                ),
             }
 
 
@@ -340,7 +305,7 @@ class OtherConfig:
         if answer_type == "Dropdown":
             self.otherType = "select"
             self.options = [
-                SelectOptionConfig(choice, detail_answer_field)
+                DropdownConfig(choice, detail_answer_field)
                 for choice in detail_answer_field.choices
             ]
         else:
@@ -357,7 +322,9 @@ class OtherConfig:
 def map_checkbox_config(form, answer):
     options = form["fields"][answer["id"]]
 
-    return [CheckboxConfig(option, i, form, answer) for i, option in enumerate(options)]
+    return [
+        SelectConfig(option, idx, answer, form) for idx, option in enumerate(options)
+    ]
 
 
 @blueprint.app_context_processor
@@ -369,7 +336,9 @@ def map_checkbox_config_processor():
 def map_radio_config(form, answer):
     options = form["fields"][answer["id"]]
 
-    return [RadioConfig(option, i, form, answer) for i, option in enumerate(options)]
+    return [
+        SelectConfig(option, idx, answer, form) for idx, option in enumerate(options)
+    ]
 
 
 @blueprint.app_context_processor
@@ -391,7 +360,7 @@ def map_relationships_config_processor():
     return dict(map_relationships_config=map_relationships_config)
 
 
-class SelectOptionConfig:
+class DropdownConfig:
     def __init__(self, option, select):
         self.value, self.text = option.value, option.label
         self.selected = select.data == self.value
@@ -399,13 +368,13 @@ class SelectOptionConfig:
 
 
 @blueprint.app_template_filter()
-def map_select_config(select):
-    return [SelectOptionConfig(choice, select) for choice in select.choices]
+def map_dropdown_config(select):
+    return [DropdownConfig(choice, select) for choice in select.choices]
 
 
 @blueprint.app_context_processor
-def map_select_config_processor():
-    return dict(map_select_config=map_select_config)
+def map_dropdown_config_processor():
+    return dict(map_select_config=map_dropdown_config)
 
 
 class SummaryAction:

@@ -101,7 +101,7 @@ class Question:
 
     def _build_checkbox_answers(self, answer, answer_schema, answer_store):
         multiple_answers = []
-        for option in answer_schema["options"] + self._get_dynamic_options(
+        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
             answer_schema
         ):
             if escape(option["value"]) in answer:
@@ -138,7 +138,7 @@ class Question:
         return dynamic_options.evaluate()
 
     def _build_radio_answer(self, answer, answer_schema, answer_store):
-        for option in answer_schema["options"] + self._get_dynamic_options(
+        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
             answer_schema
         ):
             if answer == escape(option["value"]):
@@ -155,7 +155,7 @@ class Question:
             return self._get_answer(answer_store, option["detail_answer"]["id"])
 
     def _build_dropdown_answer(self, answer, answer_schema):
-        for option in answer_schema["options"] + self._get_dynamic_options(
+        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
             answer_schema
         ):
             if answer == option["value"]:

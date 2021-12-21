@@ -6,7 +6,7 @@
     "survey_id": "0",
     "title": "Test dynamic answer option driven by the map operator",
     "theme": "default",
-    "description": "A questionnaire to demo dynamic answer options driven by the map operator with no additional options",
+    "description": "A questionnaire to demo dynamic answer options driven by the map operator with additional static options",
     "metadata": [
         {
             "name": "user_id",
@@ -57,7 +57,7 @@
                             "question": {
                                 "id": "dynamic-checkbox-question",
                                 "title": {
-                                    "text": "In the week of {date}, which dates did you <em>work</em>?",
+                                    "text": "In the week of {date}, which days did you <em>work</em>?",
                                     "placeholders": [
                                         {
                                             "placeholder": "date",
@@ -80,7 +80,7 @@
                                 "answers": [
                                     {
                                         "id": "dynamic-checkbox-answer",
-                                        "mandatory": true,
+                                        "mandatory": false,
                                         "type": "Checkbox",
                                         "dynamic_options": {
                                             "values": {
@@ -154,7 +154,7 @@
                                 "answers": [
                                     {
                                         "id": "dynamic-radio-answer",
-                                        "mandatory": true,
+                                        "mandatory": false,
                                         "type": "Radio",
                                         "dynamic_options": {
                                             "values": {
@@ -166,9 +166,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]
@@ -226,7 +228,7 @@
                                 "answers": [
                                     {
                                         "id": "dynamic-dropdown-answer",
-                                        "mandatory": true,
+                                        "mandatory": false,
                                         "type": "Dropdown",
                                         "label": "Select an option",
                                         "dynamic_options": {
@@ -239,9 +241,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]
@@ -296,10 +300,11 @@
                                     ]
                                 },
                                 "type": "MutuallyExclusive",
+                                "mandatory": false,
                                 "answers": [
                                     {
-                                        "id": "dynamic-mutually-exclusive-dyanmic-answer",
-                                        "mandatory": true,
+                                        "id": "dynamic-mutually-exclusive-dynamic-answer",
+                                        "mandatory": false,
                                         "type": "Checkbox",
                                         "label": "Select an option",
                                         "dynamic_options": {
@@ -312,9 +317,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]
@@ -332,11 +339,17 @@
                                                     "EEEE d MMMM yyyy"
                                                 ]
                                             }
-                                        }
+                                        },
+                                        "options": [
+                                            {
+                                                "label": "None of the above",
+                                                "value": "None of the above"
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "dynamic-mutually-exclusive-static-answer",
-                                        "mandatory": true,
+                                        "mandatory": false,
                                         "type": "Checkbox",
                                         "label": "OOr",
                                         "options": [

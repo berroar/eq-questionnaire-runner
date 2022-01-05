@@ -27,17 +27,19 @@ class DynamicOptions:
         values = self.dynamic_options_schema["values"]
         if "source" in values:  # pylint: disable=no-else-raise
             # :TODO: Implement value sources support
+            # resolved_values = ...
             raise NotImplementedError
         else:
             resolved_values = self.rule_evaluator.evaluate(values)
-            resolved_labels = self.rule_evaluator.evaluate(
-                {
-                    Operator.MAP: [
-                        self.dynamic_options_schema["transform"],
-                        resolved_values,
-                    ]
-                }
-            )
+
+        resolved_labels = self.rule_evaluator.evaluate(
+            {
+                Operator.MAP: [
+                    self.dynamic_options_schema["transform"],
+                    resolved_values,
+                ]
+            }
+        )
 
         return tuple(
             {"label": label, "value": value}  # type: ignore

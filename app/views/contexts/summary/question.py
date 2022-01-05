@@ -99,25 +99,6 @@ class Question:
 
         return answer_value
 
-    def _build_checkbox_answers(self, answer, answer_schema, answer_store):
-        multiple_answers = []
-        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
-            answer_schema
-        ):
-            if escape(option["value"]) in answer:
-                detail_answer_value = self._get_detail_answer_value(
-                    option, answer_store
-                )
-
-                multiple_answers.append(
-                    {
-                        "label": option["label"],
-                        "detail_answer_value": detail_answer_value,
-                    }
-                )
-
-        return multiple_answers or None
-
     def _build_date_range_answer(self, answer_store, answer):
         next_answer = next(self.answer_schemas)
         to_date = self._get_answer(answer_store, next_answer["id"])
@@ -137,10 +118,30 @@ class Question:
 
         return dynamic_options.evaluate()
 
+    def get_answer_options(self, answer_schema):
+        return tuple(answer_schema.get("options", ())) + tuple(
+            self._get_dynamic_options(answer_schema)
+        )
+
+    def _build_checkbox_answers(self, answer, answer_schema, answer_store):
+        multiple_answers = []
+        for option in self.get_answer_options(answer_schema):
+            if escape(option["value"]) in answer:
+                detail_answer_value = self._get_detail_answer_value(
+                    option, answer_store
+                )
+
+                multiple_answers.append(
+                    {
+                        "label": option["label"],
+                        "detail_answer_value": detail_answer_value,
+                    }
+                )
+
+        return multiple_answers or None
+
     def _build_radio_answer(self, answer, answer_schema, answer_store):
-        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
-            answer_schema
-        ):
+        for option in self.get_answer_options(answer_schema):
             if answer == escape(option["value"]):
                 detail_answer_value = self._get_detail_answer_value(
                     option, answer_store
@@ -155,9 +156,7 @@ class Question:
             return self._get_answer(answer_store, option["detail_answer"]["id"])
 
     def _build_dropdown_answer(self, answer, answer_schema):
-        for option in answer_schema.get("options", ()) + self._get_dynamic_options(
-            answer_schema
-        ):
+        for option in self.get_answer_options(answer_schema):
             if answer == option["value"]:
                 return option["label"]
 

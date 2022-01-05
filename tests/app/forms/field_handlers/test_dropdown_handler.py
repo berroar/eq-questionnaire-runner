@@ -5,10 +5,10 @@ from app.forms.field_handlers.dropdown_handler import DropdownHandler
 
 
 def test_build_choices_without_placeholder(
-    dropdown_answer_schema, value_source_resolver
+    dropdown_answer_schema, value_source_resolver, rule_evaluator
 ):
     handler = DropdownHandler(
-        dropdown_answer_schema, value_source_resolver, error_messages
+        dropdown_answer_schema, value_source_resolver, rule_evaluator, error_messages
     )
 
     expected_choices = [("", "Select an answer")] + [
@@ -16,13 +16,15 @@ def test_build_choices_without_placeholder(
         for option in dropdown_answer_schema["options"]
     ]
 
-    assert handler.build_choices(dropdown_answer_schema["options"]) == expected_choices
+    assert handler.choices == expected_choices
 
 
-def test_build_choices_with_placeholder(dropdown_answer_schema, value_source_resolver):
+def test_build_choices_with_placeholder(
+    dropdown_answer_schema, value_source_resolver, rule_evaluator
+):
     dropdown_answer_schema["placeholder"] = "Select an option"
     handler = DropdownHandler(
-        dropdown_answer_schema, value_source_resolver, error_messages
+        dropdown_answer_schema, value_source_resolver, rule_evaluator, error_messages
     )
 
     expected_choices = [("", "Select an option")] + [
@@ -30,12 +32,12 @@ def test_build_choices_with_placeholder(dropdown_answer_schema, value_source_res
         for option in dropdown_answer_schema["options"]
     ]
 
-    assert handler.build_choices(dropdown_answer_schema["options"]) == expected_choices
+    assert handler.choices == expected_choices
 
 
-def test_get_field(dropdown_answer_schema, value_source_resolver):
+def test_get_field(dropdown_answer_schema, value_source_resolver, rule_evaluator):
     handler = DropdownHandler(
-        dropdown_answer_schema, value_source_resolver, error_messages
+        dropdown_answer_schema, value_source_resolver, rule_evaluator, error_messages
     )
 
     expected_choices = [("", "Select an answer")] + [

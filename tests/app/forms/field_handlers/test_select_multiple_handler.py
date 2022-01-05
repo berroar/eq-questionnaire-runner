@@ -5,7 +5,7 @@ from app.forms.field_handlers import SelectMultipleHandler
 from app.forms.fields import MultipleSelectFieldWithDetailAnswer
 
 
-def test_get_field(value_source_resolver):
+def test_get_field(value_source_resolver, rule_evaluator):
     checkbox_json = {
         "guidance": "",
         "id": "opening-crawler-answer",
@@ -24,7 +24,7 @@ def test_get_field(value_source_resolver):
     }
 
     handler = SelectMultipleHandler(
-        checkbox_json, value_source_resolver, error_messages
+        checkbox_json, value_source_resolver, rule_evaluator, error_messages
     )
 
     class TestForm(Form):

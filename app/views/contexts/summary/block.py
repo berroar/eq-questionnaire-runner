@@ -63,7 +63,7 @@ class Block:
         schema,
         location,
     ):
-        """ Taking question variants into account, return the question which was displayed to the user """
+        """Taking question variants into account, return the question which was displayed to the user"""
         list_item_id = location.list_item_id
 
         variant = choose_variant(

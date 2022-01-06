@@ -1,14 +1,12 @@
 from collections import namedtuple
-from dataclasses import dataclass
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from app.forms.field_handlers.field_handler import FieldHandler
 from app.forms.fields import (
     MultipleSelectFieldWithDetailAnswer,
     SelectFieldWithDetailAnswer,
 )
-from app.questionnaire.rules.operator import Operator
-from app.questionnaire.rules.rule_evaluator import RuleEvaluator
+from app.questionnaire.dynamic_answer_options import DynamicAnswerOptions
 
 Choice = namedtuple("Choice", "value label")
 ChoiceWithDetailAnswer = namedtuple(
@@ -16,35 +14,6 @@ ChoiceWithDetailAnswer = namedtuple(
 )
 
 ChoiceType = Union[Choice, ChoiceWithDetailAnswer]
-
-
-@dataclass
-class DynamicOptions:
-    dynamic_options_schema: Mapping[str, Any]
-    rule_evaluator: RuleEvaluator
-
-    def evaluate(self) -> tuple[dict[str, str], ...]:
-        values = self.dynamic_options_schema["values"]
-        if "source" in values:  # pylint: disable=no-else-raise
-            # :TODO: Implement value sources support
-            # resolved_values = ...
-            raise NotImplementedError
-        else:
-            resolved_values = self.rule_evaluator.evaluate(values)
-
-        resolved_labels = self.rule_evaluator.evaluate(
-            {
-                Operator.MAP: [
-                    self.dynamic_options_schema["transform"],
-                    resolved_values,
-                ]
-            }
-        )
-
-        return tuple(
-            {"label": label, "value": value}  # type: ignore
-            for label, value in zip(resolved_labels, resolved_values)  # type: ignore
-        )
 
 
 class SelectHandlerBase(FieldHandler):
@@ -60,7 +29,7 @@ class SelectHandlerBase(FieldHandler):
         if not self.dynamic_options_schema:
             return []
 
-        dynamic_options = DynamicOptions(
+        dynamic_options = DynamicAnswerOptions(
             dynamic_options_schema=self.dynamic_options_schema,
             rule_evaluator=self.rule_evaluator,
         )

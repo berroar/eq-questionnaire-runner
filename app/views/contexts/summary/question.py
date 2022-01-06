@@ -1,6 +1,6 @@
 from markupsafe import escape
 
-from app.forms.field_handlers.select_handlers import DynamicOptions
+from app.forms.field_handlers.select_handlers import DynamicAnswerOptions
 from app.views.contexts.summary.answer import Answer
 
 
@@ -111,7 +111,7 @@ class Question:
         if not (dynamic_options_schema := answer_schema.get("dynamic_options")):
             return ()
 
-        dynamic_options = DynamicOptions(
+        dynamic_options = DynamicAnswerOptions(
             dynamic_options_schema=dynamic_options_schema,
             rule_evaluator=self.rule_evaluator,
         )

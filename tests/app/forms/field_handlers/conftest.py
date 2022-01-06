@@ -49,7 +49,7 @@ def escape_answer_values():
 
 @pytest.fixture
 def rule_evaluator():
-    resolver = RuleEvaluator(
+    evaluator = RuleEvaluator(
         answer_store=get_mock_answer_store(),
         list_store=get_mock_list_store(),
         metadata=get_mock_metadata(),
@@ -58,7 +58,7 @@ def rule_evaluator():
         location=get_mock_location(),
     )
 
-    return resolver
+    return evaluator
 
 
 @pytest.fixture

@@ -80,7 +80,7 @@
                                 "answers": [
                                     {
                                         "id": "dynamic-checkbox-answer",
-                                        "mandatory": true,
+                                        "mandatory": false,
                                         "type": "Checkbox",
                                         "dynamic_options": {
                                             "values": {

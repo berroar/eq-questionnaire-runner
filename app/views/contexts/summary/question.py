@@ -104,7 +104,7 @@ class Question:
         to_date = self._get_answer(answer_store, next_answer["id"])
         return {"from": answer, "to": to_date}
 
-    def _get_dynamic_options(
+    def _get_dynamic_answer_options(
         self,
         answer_schema,
     ):
@@ -120,7 +120,7 @@ class Question:
 
     def get_answer_options(self, answer_schema):
         return tuple(answer_schema.get("options", ())) + tuple(
-            self._get_dynamic_options(answer_schema)
+            self._get_dynamic_answer_options(answer_schema)
         )
 
     def _build_checkbox_answers(self, answer, answer_schema, answer_store):

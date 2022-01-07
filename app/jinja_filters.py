@@ -255,22 +255,23 @@ class SelectConfig:
         self.checked = option.checked
 
         label_description = None
-        self._answer_option = None
 
         try:
             self._answer_option = answer.get("options", [])[index]
+        except IndexError:
+            self._answer_option = {}
+
+        if self._answer_option:
             if "description" in self._answer_option:
                 label_description = self._answer_option["description"]
-        except IndexError:
-            pass
+
+            if form and option.detail_answer_id:
+                detail_answer_field = form["fields"][option.detail_answer_id]
+                detail_answer_schema = self._answer_option["detail_answer"]
+
+                self.other = OtherConfig(detail_answer_field, detail_answer_schema)
 
         self.label = LabelConfig(option.id, option.label.text, label_description)
-
-        if self._answer_option and form and option.detail_answer_id:
-            detail_answer_field = form["fields"][option.detail_answer_id]
-            detail_answer_schema = self._answer_option["detail_answer"]
-
-            self.other = OtherConfig(detail_answer_field, detail_answer_schema)
 
 
 class RelationshipRadioConfig(SelectConfig):

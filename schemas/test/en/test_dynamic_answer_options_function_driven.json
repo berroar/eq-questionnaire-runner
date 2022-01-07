@@ -160,9 +160,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]
@@ -227,9 +229,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]
@@ -295,9 +299,11 @@
                                                         "date-range": [
                                                             {
                                                                 "date": [
-                                                                    "now",
                                                                     {
-                                                                        "days": -7,
+                                                                        "source": "answers",
+                                                                        "identifier": "reference-date-answer"
+                                                                    },
+                                                                    {
                                                                         "day_of_week": "MONDAY"
                                                                     }
                                                                 ]

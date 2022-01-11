@@ -351,13 +351,13 @@ The following env variables can be used
 | EQ_NEW_RELIC_ENABLED                      | False                      | Enable New Relic monitoring                                                                                    |
 | NEW_RELIC_LICENSE_KEY                     |                            | Enable new relic monitoring by supplying a New Relic license key                                               |
 | NEW_RELIC_APP_NAME                        |                            | The name to display for the application in New Relic                                                           |
-| COOKIE_SETTINGS_URL                       |                            | URL for the Website Cookie Settings page                                                                       |
 | WEB_SERVER_TYPE                           |                            | Web server type used to run the application. This also determines the worker class which can be async/threaded |
 | WEB_SERVER_WORKERS                        |                            | The number of worker processes                                                                                 |
 | WEB_SERVER_THREADS                        |                            | The number of worker threads per worker                                                                        |
 | WEB_SERVER_UWSGI_ASYNC_CORES              |                            | The number of cores to initialise when using "uwsgi-async" web server worker type                              |
 | DATASTORE_USE_GRPC                        | False                      | Determines whether to use gRPC for Datastore. gRPC is currently only supported for threaded web servers        |
 | ACCOUNT_SERVICE_BASE_URL                  | `https://surveys.ons.gov.uk` | The base URL of the account service used to launch the survey                                                  |
+| ONS_URL                                   | `https://www.ons.gov.uk`   | The URL of the ONS website where static content is sourced, e.g. accessibility info                                                  |
 
 The following env variables can be used when running tests
 

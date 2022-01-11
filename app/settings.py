@@ -129,8 +129,6 @@ EQ_SESSION_ID = "eq-session-id"
 EQ_LIST_ITEM_ID_LENGTH = 6
 MAX_NUMBER = 9999999999
 
-COOKIE_SETTINGS_URL = os.getenv("COOKIE_SETTINGS_URL")
-
 CONFIRMATION_EMAIL_LIMIT = int(os.getenv("CONFIRMATION_EMAIL_LIMIT", "10"))
 
 ADDRESS_LOOKUP_API_URL = os.getenv("ADDRESS_LOOKUP_API_URL")
@@ -155,3 +153,5 @@ ACCOUNT_SERVICE_BASE_URL = os.getenv(
 PRINT_STYLE_SHEET_FILE_PATH = os.getenv(
     "PRINT_STYLE_SHEET_FILEPATH", "templates/assets/styles"
 )
+
+ONS_URL = os.getenv("ONS_URL", "https://www.ons.gov.uk")

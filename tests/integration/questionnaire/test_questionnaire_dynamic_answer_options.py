@@ -1,7 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 
 
-class TestQuestionnaireDynamicAnswerOptions(IntegrationTestCase):
+class TestQuestionnaireDynamicAnswerOptionsFunctionDriven(IntegrationTestCase):
     def answer_checkbox_question(self, answer_value):
         self.post({"dynamic-checkbox-answer": answer_value})
 
@@ -67,14 +67,14 @@ class TestQuestionnaireDynamicAnswerOptions(IntegrationTestCase):
         # Given I launch a schema with dynamic options with additional static option
         self.launchSurvey(schema_name, roles=["dumper"])
 
-        # When I answer the questions using the dynamic options
+        # When I Save and continue without answering any questions
         self.complete_reference_date_question()
         self.post()
         self.post()
         self.post()
         self.post()
 
-        # Then my answers should be displayed on the summary page
+        # Then for each question "No answer provided" should be displayed on the summary page
 
         # Assert Checkbox answer
         self.assertAnswerInSummary(
